@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(public)/layout,_N_T_/(public)/system-design/layout,_N_T_/(public)/system-design/page,_N_T_/system-design"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/!KHB1YmxpYyk/system-design/__PAGE__",
+    "/!KHB1YmxpYyk/system-design",
+    "/!KHB1YmxpYyk",
+    "/_index",
+    "/_head"
+  ]
+}
