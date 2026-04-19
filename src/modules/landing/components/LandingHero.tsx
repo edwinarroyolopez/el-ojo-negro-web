@@ -3,6 +3,10 @@
 import styled from 'styled-components';
 import { Button } from '@/components/ui/Button';
 
+interface LandingHeroProps {
+  onOpenCriteria: () => void;
+}
+
 const Hero = styled.section`
   border-bottom: ${({ theme }) => theme.borders.subtle};
 `;
@@ -55,9 +59,10 @@ const Accent = styled.span`
 
 const Lead = styled.p`
   margin: 1.4rem 0 0;
-  max-width: 58ch;
+  max-width: 56ch;
   color: ${({ theme }) => theme.colors.textMuted};
   font-size: ${({ theme }) => theme.typography.size.lg};
+  line-height: 1.8;
 `;
 
 const Actions = styled.div`
@@ -65,6 +70,14 @@ const Actions = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
+`;
+
+const Signature = styled.p`
+  margin: 1rem 0 0;
+  color: ${({ theme }) => theme.colors.textSoft};
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: ${({ theme }) => theme.typography.size.xs};
 `;
 
 const SigilCard = styled.div`
@@ -75,6 +88,12 @@ const SigilCard = styled.div`
   box-shadow: ${({ theme }) => theme.shadows.md};
   position: relative;
   overflow: hidden;
+  transition: border-color 220ms ease, transform 220ms ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.borderStrong};
+    transform: translateY(-2px);
+  }
 
   &::before {
     content: '';
@@ -110,7 +129,7 @@ const SigilLimitless = styled.p`
   font-size: ${({ theme }) => theme.typography.size.xs};
 `;
 
-export function LandingHero() {
+export function LandingHero({ onOpenCriteria }: LandingHeroProps) {
   const scrollTo = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -123,7 +142,7 @@ export function LandingHero() {
       <Grid>
         <div>
           <Badge>
-            EL OJO NEGRO <Dot /> Arquitecto de Percepcion
+            EL OJO NEGRO <Dot /> Arquitectura de Percepcion
           </Badge>
           <Heading>
             No invento valor.
@@ -131,15 +150,19 @@ export function LandingHero() {
             <Accent>Lo revelo.</Accent>
           </Heading>
           <Lead>
-            Una firma construida desde la mirada. Detecta excelencia, ordena percepcion y eleva como una persona,
-            oficio o negocio es visto por el mundo.
+            El verdadero poder no se anuncia. Se percibe. EL OJO NEGRO observa, ordena y eleva como un negocio,
+            talento u oficio es leido, sin traicionar su esencia.
           </Lead>
+          <Signature>Arquitecto de Percepcion - Autoridad serena</Signature>
           <Actions>
             <Button type="button" onClick={() => scrollTo('manifiesto')}>
               Ver manifiesto
             </Button>
             <Button variant="secondary" type="button" onClick={() => scrollTo('metodo')}>
               Explorar metodo
+            </Button>
+            <Button variant="ghost" type="button" onClick={onOpenCriteria} aria-haspopup="dialog">
+              Ver umbral de entrada
             </Button>
           </Actions>
         </div>

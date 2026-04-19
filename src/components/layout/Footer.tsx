@@ -30,7 +30,7 @@ export function Footer() {
   return (
     <Wrapper>
       <Inner>
-        <p>EL OJO NEGRO - Arquitecto de Percepcion</p>
+        <p>EL OJO NEGRO - Arquitecto de Percepcion - Poder silencioso</p>
         <Motto>Limitless</Motto>
       </Inner>
     </Wrapper>
