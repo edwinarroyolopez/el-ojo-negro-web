@@ -248,13 +248,13 @@ export function ElOjoNegroLanding() {
         <Container>
           <GridTwo>
             <div>
-              <Eyebrow>Analisis</Eyebrow>
+              <Eyebrow>Análisis</Eyebrow>
               <Heading>Una mirada que no persuade: revela</Heading>
             </div>
             <div style={{ display: 'grid', gap: '1rem' }}>
               <Muted>
-                EL OJO NEGRO une simbolo, oficio y expansion: el ojo como lectura profunda, Arquitecto de Percepcion como
-                metodo y LIMITLESS como alcance.
+                EL OJO NEGRO une símbolo, oficio y expansión: el ojo como lectura profunda, Arquitecto de Percepción como
+                método y LIMITLESS como alcance.
               </Muted>
               <Muted>
                 No compite por volumen ni por ruido. Opera donde una lectura precisa puede reordenar presencia, autoridad y
@@ -270,7 +270,7 @@ export function ElOjoNegroLanding() {
           <div style={{ display: 'grid', gap: '1.4rem' }}>
             <div>
               <Eyebrow>Pilares</Eyebrow>
-              <Heading>Decir menos. Transformar mas.</Heading>
+              <Heading>Decir menos. Transformar más.</Heading>
             </div>
             <GridTwo>
               {pillars.map((item) => (
@@ -289,11 +289,11 @@ export function ElOjoNegroLanding() {
         <Container>
           <GridTwo>
             <div>
-              <Eyebrow>Metodo</Eyebrow>
+              <Eyebrow>Método</Eyebrow>
               <Heading>Quod tango muto</Heading>
               <Manifesto>
-                La transformacion no nace del ruido. Nace de observar, destilar y elevar. Primero lectura. Luego forma.
-                Despues, presencia.
+                La transformación no nace del ruido. Nace de observar, destilar y elevar. Primero lectura. Luego forma.
+                Después, presencia.
               </Manifesto>
             </div>
             <Principles>
@@ -313,7 +313,7 @@ export function ElOjoNegroLanding() {
           <GridTwo>
             <Card>
               <Eyebrow>Territorio</Eyebrow>
-              <Heading style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>Donde vive esta vision</Heading>
+              <Heading style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}>Dónde vive esta visión</Heading>
               <div style={{ display: 'grid', gap: '0.8rem', marginTop: '1rem' }}>
                 {applications.map((item) => (
                   <div
@@ -341,15 +341,15 @@ export function ElOjoNegroLanding() {
             </Card>
 
             <Card style={{ background: 'rgba(205, 180, 124, 0.08)' }}>
-              <Eyebrow>Declaracion</Eyebrow>
+              <Eyebrow>Declaración</Eyebrow>
               <Quote>
                 Mi mirada es mi activo.
                 <br />
                 Quod observo muto.
               </Quote>
               <Muted style={{ marginTop: '1rem' }}>
-                No fabrico talento. Lo detecto, lo ordeno y lo elevo. Donde otros ven rutina, aqui se revela identidad,
-                posicion y autoridad.
+                No fabrico talento. Lo detecto, lo ordeno y lo elevo. Donde otros ven rutina, aquí se revela identidad,
+                posición y autoridad.
               </Muted>
             </Card>
           </GridTwo>
@@ -359,10 +359,10 @@ export function ElOjoNegroLanding() {
       <Section style={{ borderBottom: 'none' }}>
         <Container style={{ textAlign: 'center' }}>
           <Eyebrow>Cierre</Eyebrow>
-          <Heading>Arquitecto de Percepcion</Heading>
+          <Heading>Arquitecto de Percepción</Heading>
           <Manifesto style={{ marginInline: 'auto', marginTop: '1rem' }}>
             Una firma para negocios, talentos y oficios con sustancia real. Revela valor, eleva presencia y transforma
-            percepcion sin gritar ni exagerar.
+            percepción sin gritar ni exagerar.
           </Manifesto>
           <Eyebrow style={{ marginTop: '2rem' }}>EL OJO NEGRO - LIMITLESS</Eyebrow>
         </Container>

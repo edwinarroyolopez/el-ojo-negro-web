@@ -17,8 +17,8 @@ const serif = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: 'EL OJO NEGRO - Arquitecto de Percepcion',
-  description: 'Firma de vision estrategica y elevacion perceptual.',
+  title: 'EL OJO NEGRO - Arquitecto de Percepción',
+  description: 'Firma de visión estratégica y elevación perceptual.',
   icons: {
     icon: '/DARK.png',
     shortcut: '/DARK.png',

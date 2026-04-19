@@ -95,9 +95,9 @@ export function MarketingHeader() {
         <Brand href="/" aria-label="EL OJO NEGRO - inicio">
           <BrandLogo src="/DARK.png" alt="EL OJO NEGRO" />
         </Brand>
-        <Nav aria-label="Navegacion publica">
+        <Nav aria-label="Navegación pública">
           <NavLink href="/#manifiesto">Manifiesto</NavLink>
-          <NavLink href="/#metodo">Metodo</NavLink>
+          <NavLink href="/#metodo">Método</NavLink>
           <NavLink href="/login">Login</NavLink>
           <Accent>Limitless</Accent>
         </Nav>

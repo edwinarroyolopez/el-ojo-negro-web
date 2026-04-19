@@ -142,7 +142,7 @@ export function LandingHero({ onOpenCriteria }: LandingHeroProps) {
       <Grid>
         <div>
           <Badge>
-            EL OJO NEGRO <Dot /> Arquitectura de Percepcion
+            EL OJO NEGRO <Dot /> Arquitectura de Percepción
           </Badge>
           <Heading>
             No invento valor.
@@ -151,15 +151,15 @@ export function LandingHero({ onOpenCriteria }: LandingHeroProps) {
           </Heading>
           <Lead>
             El verdadero poder no se anuncia. Se percibe. EL OJO NEGRO observa, ordena y eleva como un negocio,
-            talento u oficio es leido, sin traicionar su esencia.
+            talento u oficio es leído, sin traicionar su esencia.
           </Lead>
-          <Signature>Arquitecto de Percepcion - Autoridad serena</Signature>
+          <Signature>Arquitecto de Percepción - Autoridad serena</Signature>
           <Actions>
             <Button type="button" onClick={() => scrollTo('manifiesto')}>
               Ver manifiesto
             </Button>
             <Button variant="secondary" type="button" onClick={() => scrollTo('metodo')}>
-              Explorar metodo
+              Explorar método
             </Button>
             <Button variant="ghost" type="button" onClick={onOpenCriteria} aria-haspopup="dialog">
               Ver umbral de entrada
@@ -179,7 +179,7 @@ export function LandingHero({ onOpenCriteria }: LandingHeroProps) {
             <circle cx="110" cy="60" r="26" fill="none" stroke="#cdb47c" strokeWidth="4" />
           </svg>
           <SigilTitle>EL OJO NEGRO</SigilTitle>
-          <SigilSub>Arquitecto de Percepcion</SigilSub>
+          <SigilSub>Arquitecto de Percepción</SigilSub>
           <SigilLimitless>Limitless</SigilLimitless>
         </SigilCard>
       </Grid>
