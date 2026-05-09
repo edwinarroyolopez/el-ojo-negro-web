@@ -1,6 +1,13 @@
 import Link from 'next/link';
+import type { MouseEvent } from 'react';
 import styled from 'styled-components';
-import { ArrowUpRight, Globe, Instagram, MessageCircle } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Globe,
+  Instagram,
+  MessageCircle,
+  PhoneCall,
+} from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { Prospect } from '../types';
@@ -106,21 +113,6 @@ const ExternalLink = styled.a`
   }
 `;
 
-const Signals = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-`;
-
-const Signal = styled.span`
-  border: ${({ theme }) => theme.borders.subtle};
-  border-radius: ${({ theme }) => theme.radius.pill};
-  padding: 0.34rem 0.66rem;
-  font-size: ${({ theme }) => theme.typography.size.xs};
-  color: ${({ theme }) => theme.colors.textMuted};
-  background: rgba(255, 255, 255, 0.03);
-`;
-
 const Footer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -135,7 +127,12 @@ const ScoreMeta = styled.div`
   font-size: ${({ theme }) => theme.typography.size.sm};
 `;
 
-export function ProspectCard({ prospect }: { prospect: Prospect }) {
+type Props = {
+  prospect: Prospect;
+  onOpenScript?: (prospect: Prospect) => void;
+};
+
+export function ProspectCard({ prospect, onOpenScript }: Props) {
   const growth = Math.round(prospect.scores.growthOpportunityScore ?? 0);
   const confidence = Math.round(prospect.scores.confidenceScore ?? 0);
   const primaryPhone = prospect.phones[0] || prospect.normalizedPrimaryPhone || '';
@@ -156,7 +153,12 @@ export function ProspectCard({ prospect }: { prospect: Prospect }) {
   const whatsappUrl = whatsappPhoneDigits
     ? `https://wa.me/${whatsappPhoneDigits}?text=${whatsappMessage}`
     : null;
-  const signals = [] as string[];
+
+  function handleOpenScript(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    onOpenScript?.(prospect);
+  }
 
   return (
     <Wrapper>
@@ -176,12 +178,6 @@ export function ProspectCard({ prospect }: { prospect: Prospect }) {
         <ProspectStatusBadge status={prospect.status} />
         <ProspectPriorityBadge priority={prospect.priority} />
       </Meta>
-
-      <Signals>
-        {signals.map((signal) => (
-          <Signal key={signal}>{signal}</Signal>
-        ))}
-      </Signals>
 
       {websiteUrl || instagramUrl ? (
         <LinkRow>
@@ -220,11 +216,18 @@ export function ProspectCard({ prospect }: { prospect: Prospect }) {
           <span>Confianza {confidence}</span>
         </ScoreMeta>
 
-        <Link href={`/dashboard/prospects/${prospect.id}`}>
-          <Button>
-            Ver detalle <ArrowUpRight size={16} />
-          </Button>
-        </Link>
+        <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+          {onOpenScript ? (
+            <Button variant="secondary" onClick={handleOpenScript}>
+              <PhoneCall size={16} /> Guion
+            </Button>
+          ) : null}
+          <Link href={`/dashboard/prospects/${prospect.id}`}>
+            <Button>
+              Ver detalle <ArrowUpRight size={16} />
+            </Button>
+          </Link>
+        </div>
       </Footer>
     </Wrapper>
   );

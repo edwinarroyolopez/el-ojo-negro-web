@@ -2,12 +2,23 @@
 
 import { useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { Compass } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import { useProspects } from '../hooks/useProspects';
 import { useProspectMetrics } from '../hooks/useProspectMetrics';
-import type { ProspectListParams } from '../types';
+import { CommercialNorthModal } from './CommercialNorthModal';
+import type { Prospect, ProspectListParams } from '../types';
+import { OutreachScriptModal } from './OutreachScriptModal';
 import { ProspectCard } from './ProspectCard';
 import { ProspectFilters } from './ProspectFilters';
+
+const HeroActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+`;
 
 const Page = styled.div`
   display: grid;
@@ -100,6 +111,8 @@ const Grid = styled.section`
 `;
 
 export function ProspectsRadarPage() {
+  const [isCommercialNorthOpen, setIsCommercialNorthOpen] = useState(false);
+  const [selectedScriptProspect, setSelectedScriptProspect] = useState<Prospect | null>(null);
   const [filters, setFilters] = useState<ProspectListParams>({
     page: 1,
     limit: 24,
@@ -136,6 +149,11 @@ export function ProspectsRadarPage() {
         <Lead>
           Prospectos ordenados por score, estado y próxima acción. Esto debe sentirse como centro de mando, no como Excel con corbata.
         </Lead>
+        <HeroActions>
+          <Button variant="secondary" onClick={() => setIsCommercialNorthOpen(true)}>
+            <Compass size={16} /> Norte comercial
+          </Button>
+        </HeroActions>
       </Hero>
 
       <Metrics>
@@ -174,7 +192,11 @@ export function ProspectsRadarPage() {
 
       <Grid>
         {(prospectsQuery.data?.items ?? []).map((prospect) => (
-          <ProspectCard key={prospect.id} prospect={prospect} />
+          <ProspectCard
+            key={prospect.id}
+            prospect={prospect}
+            onOpenScript={setSelectedScriptProspect}
+          />
         ))}
       </Grid>
 
@@ -183,6 +205,20 @@ export function ProspectsRadarPage() {
           <Lead>No hay prospectos para estos filtros todavía.</Lead>
         </Card>
       ) : null}
+
+      <OutreachScriptModal
+        prospect={selectedScriptProspect}
+        open={Boolean(selectedScriptProspect)}
+        onClose={() => setSelectedScriptProspect(null)}
+        publicUrl={selectedScriptProspect?.diagnosis.slug ? `/diagnosticos/${selectedScriptProspect.diagnosis.slug}` : undefined}
+        onOpenCommercialNorth={() => setIsCommercialNorthOpen(true)}
+      />
+
+      <CommercialNorthModal
+        prospect={null}
+        open={isCommercialNorthOpen}
+        onClose={() => setIsCommercialNorthOpen(false)}
+      />
     </Page>
   );
 }

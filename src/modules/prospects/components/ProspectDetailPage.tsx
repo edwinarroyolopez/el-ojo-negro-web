@@ -4,7 +4,13 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
-import { ArrowUpRight, Globe, Instagram, MessageCircle } from 'lucide-react';
+import {
+  ArrowUpRight,
+  Globe,
+  Instagram,
+  MessageCircle,
+  PhoneCall,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -20,6 +26,8 @@ import {
 import { CopyPromptPanel } from './CopyPromptPanel';
 import { DiagnosisEditor } from './DiagnosisEditor';
 import { DiagnosisPreview } from './DiagnosisPreview';
+import { CommercialNorthModal } from './CommercialNorthModal';
+import { OutreachScriptModal } from './OutreachScriptModal';
 import { ProspectPriorityBadge, ProspectStatusBadge } from './ProspectStatusBadge';
 
 const Page = styled.div`
@@ -197,6 +205,8 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<ProspectStatus>(prospect.status);
   const [internalNotes, setInternalNotes] = useState(prospect.internalNotes ?? '');
+  const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
+  const [isCommercialNorthOpen, setIsCommercialNorthOpen] = useState(false);
   const [diagnosisJson, setDiagnosisJson] = useState(() =>
     diagnosisToGeneratedJson(prospect.diagnosis),
   );
@@ -334,6 +344,12 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
           <ProspectPriorityBadge priority={prospect.priority} />
         </Meta>
         <Actions>
+          <Button variant="secondary" onClick={() => setIsCommercialNorthOpen(true)}>
+            ¿Por qué llamo?
+          </Button>
+          <Button variant="secondary" onClick={() => setIsScriptModalOpen(true)}>
+            <PhoneCall size={16} /> Ver guion de llamada
+          </Button>
           <Button variant="secondary" onClick={copyWhatsApp}>Copiar mensaje de WhatsApp</Button>
           <Button variant="secondary" onClick={saveNotes} disabled={updateProspectMutation.isPending}>Guardar notas</Button>
           <Button onClick={markContacted} disabled={updateStatusMutation.isPending || updateProspectMutation.isPending}>Marcar contactado</Button>
@@ -485,6 +501,21 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
           />
         </div>
       </Card>
+
+      <OutreachScriptModal
+        prospect={prospect}
+        open={isScriptModalOpen}
+        onClose={() => setIsScriptModalOpen(false)}
+        publicUrl={publicUrl || undefined}
+        onMarkContacted={markContacted}
+        onOpenCommercialNorth={() => setIsCommercialNorthOpen(true)}
+      />
+
+      <CommercialNorthModal
+        prospect={prospect}
+        open={isCommercialNorthOpen}
+        onClose={() => setIsCommercialNorthOpen(false)}
+      />
     </Page>
   );
 }

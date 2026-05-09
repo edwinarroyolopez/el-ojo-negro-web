@@ -27,6 +27,20 @@
 - El operador debe ver prospecto, notas, scores, prompt, editor y preview sin fricción.
 - La experiencia debe facilitar copiar, revisar y publicar.
 - Preview interno debe permitir validar tono público antes de exponerlo.
+- El guion de apertura comercial debe sentirse como herramienta operativa privada, no como contenido de marketing.
+
+### Outreach privado
+
+- El guion de apertura busca conseguir permiso para enviar el diagnóstico express gratuito.
+- Debe usar lenguaje de oportunidad, nunca acusatorio.
+- Debe estar accesible desde radar y detalle.
+- Debe permitir copiar secciones o el bloque completo con rapidez.
+- No reemplaza el prompt de investigación ni la pieza pública del diagnóstico.
+- El operador debe tener siempre visible el norte comercial.
+- El objetivo inicial no es vender una web.
+- El objetivo inicial es abrir permiso para entregar diagnóstico gratuito.
+- La escalera comercial es: `Diagnóstico gratuito → Sistema mínimo de captación → Growth Partner mensual`.
+- Este contenido es privado y no debe aparecer en la página pública del diagnóstico.
 
 ### Página pública
 

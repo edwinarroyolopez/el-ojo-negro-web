@@ -23,13 +23,18 @@ Publica:
 6. El operador trabaja el radar en `/dashboard/prospects` con métricas y filtros.
 7. Desde el radar entra a `/dashboard/prospects/[id]`.
 8. En el detalle puede:
-   - editar estado comercial
-   - guardar notas internas
-   - copiar prompt de investigación
-   - copiar mensaje base de WhatsApp
-   - pegar/editar diagnóstico
-   - guardar o publicar
+    - editar estado comercial
+    - guardar notas internas
+    - abrir el guion de apertura comercial
+    - abrir el norte comercial
+    - copiar prompt de investigación
+    - copiar mensaje base de WhatsApp
+    - pegar/editar diagnóstico
+    - guardar o publicar
 9. Si el diagnóstico tiene slug y contenido, se publica y puede verse en `/diagnosticos/[slug]`.
+
+El guion de apertura también está disponible desde el radar para consulta rápida antes de contactar.
+El norte comercial debe estar disponible siempre como referencia táctica privada desde radar y detalle.
 
 ## Flujo público
 
@@ -52,6 +57,18 @@ Publica:
 - No decir que un negocio pierde clientes como hecho.
 - Usar oportunidad visible, orden, claridad, confianza y recorrido como ejes.
 - El radar debe sentirse como centro de mando, no tabla genérica.
+
+## Outreach privado
+
+- El guion de apertura es parte del flujo privado de outreach.
+- No es contenido público.
+- Su objetivo es conseguir permiso para enviar el diagnóstico gratuito.
+- El objetivo inicial no es vender una web.
+- El objetivo inicial es abrir permiso para entregar diagnóstico gratuito.
+- La escalera comercial es: `Diagnóstico gratuito → Sistema mínimo de captación → Growth Partner mensual`.
+- Debe mantener lenguaje de oportunidad, nunca acusatorio.
+- Debe estar disponible desde radar y detalle.
+- No reemplaza el prompt de investigación ni el diagnóstico público.
 
 ## Sandbox de viabilidad
 
