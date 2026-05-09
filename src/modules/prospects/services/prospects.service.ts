@@ -19,7 +19,13 @@ export const prospectsService = {
   },
 
   async listProspects(params: ProspectListParams) {
-    const { data } = await http.get<ProspectListResponse>('/prospects', { params });
+    const cleanParams = Object.fromEntries(
+      Object.entries(params).filter(([, value]) => value !== '' && value !== undefined && value !== null),
+    );
+
+    const { data } = await http.get<ProspectListResponse>('/prospects', {
+      params: cleanParams,
+    });
     return data;
   },
 

@@ -93,3 +93,12 @@ Frontend must never expect public payloads to contain:
 1. Save diagnosis with `PATCH /prospects/:id/diagnosis`
 2. Publish with `POST /prospects/:id/diagnosis/publish`
 3. Read public page with `GET /public/diagnostics/:slug`
+
+## Import shape note
+
+The frontend import screen validates these accepted shapes before sending them:
+
+- Panalbee envelope with `researchVersion`, `generatedAt`, `promptTarget`, `candidates[]`
+- raw array
+- wrapped collections: `items`, `prospects`, `results`, `leads`, `data`
+- single prospect-like object

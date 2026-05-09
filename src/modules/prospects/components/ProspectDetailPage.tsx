@@ -10,9 +10,14 @@ import { Button } from '@/components/ui/Button';
 import { useProspect } from '../hooks/useProspect';
 import { prospectsService } from '../services/prospects.service';
 import type { Prospect, ProspectStatus } from '../types';
-import { buildResearchPrompt, buildWhatsAppMessage, diagnosisToFormState, parseEditorJson } from '../utils';
+import {
+  buildResearchPrompt,
+  buildWhatsAppMessage,
+  diagnosisToGeneratedJson,
+  validateGeneratedDiagnosisJson,
+} from '../utils';
 import { CopyPromptPanel } from './CopyPromptPanel';
-import { DiagnosisEditor, type DiagnosisFormState } from './DiagnosisEditor';
+import { DiagnosisEditor } from './DiagnosisEditor';
 import { DiagnosisPreview } from './DiagnosisPreview';
 import { ProspectPriorityBadge, ProspectStatusBadge } from './ProspectStatusBadge';
 
@@ -169,7 +174,10 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const queryClient = useQueryClient();
   const [status, setStatus] = useState<ProspectStatus>(prospect.status);
   const [internalNotes, setInternalNotes] = useState(prospect.internalNotes ?? '');
-  const [diagnosisForm, setDiagnosisForm] = useState<DiagnosisFormState>(() => diagnosisToFormState(prospect.diagnosis));
+  const [diagnosisJson, setDiagnosisJson] = useState(() =>
+    diagnosisToGeneratedJson(prospect.diagnosis),
+  );
+  const diagnosisValidation = validateGeneratedDiagnosisJson(diagnosisJson);
 
   const updateProspectMutation = useMutation({
     mutationFn: (payload: Parameters<typeof prospectsService.updateProspect>[1]) => prospectsService.updateProspect(id, payload),
@@ -196,16 +204,12 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
 
   const saveDiagnosisMutation = useMutation({
     mutationFn: async () => {
+      if (!diagnosisValidation.payload) {
+        throw new Error('Diagnosis JSON is invalid');
+      }
+
       return prospectsService.updateDiagnosis(id, {
-        title: diagnosisForm.title || undefined,
-        slug: diagnosisForm.slug || undefined,
-        visibility: diagnosisForm.visibility,
-        status: diagnosisForm.status,
-        summary: diagnosisForm.summary || undefined,
-        publicNotes: diagnosisForm.publicNotes || undefined,
-        markdown: diagnosisForm.markdown || undefined,
-        scores: parseEditorJson(diagnosisForm.scoresJson),
-        structured: parseEditorJson(diagnosisForm.structuredJson) as Record<string, unknown> | undefined,
+        ...diagnosisValidation.payload,
       });
     },
     onSuccess: async () => {
@@ -218,7 +222,20 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   });
 
   const publishMutation = useMutation({
-    mutationFn: () => prospectsService.publishDiagnosis(id, { slug: diagnosisForm.slug || undefined, visibility: diagnosisForm.visibility }),
+    mutationFn: async () => {
+      if (!diagnosisValidation.payload) {
+        throw new Error('Diagnosis JSON is invalid');
+      }
+
+      await prospectsService.updateDiagnosis(id, {
+        ...diagnosisValidation.payload,
+      });
+
+      return prospectsService.publishDiagnosis(id, {
+        slug: diagnosisValidation.payload.slug || undefined,
+        visibility: diagnosisValidation.payload.visibility,
+      });
+    },
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['prospects', 'detail', id] }),
@@ -348,10 +365,11 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
           <CopyPromptPanel value={prompt} />
           <Card>
             <DiagnosisEditor
-              value={diagnosisForm}
+              value={diagnosisJson}
               isSaving={saveDiagnosisMutation.isPending}
               isPublishing={publishMutation.isPending}
-              onChange={setDiagnosisForm}
+              validation={diagnosisValidation}
+              onChange={setDiagnosisJson}
               onSave={() => saveDiagnosisMutation.mutate()}
               onPublish={() => publishMutation.mutate()}
               onUnpublish={() => unpublishMutation.mutate()}
@@ -365,18 +383,14 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
         <div style={{ marginTop: '1rem' }}>
           <DiagnosisPreview
             prospect={prospect}
-            diagnosis={{
-              ...prospect.diagnosis,
-              title: diagnosisForm.title || prospect.diagnosis.title,
-              slug: diagnosisForm.slug || prospect.diagnosis.slug,
-              visibility: diagnosisForm.visibility,
-              status: diagnosisForm.status,
-              summary: diagnosisForm.summary,
-              publicNotes: diagnosisForm.publicNotes,
-              markdown: diagnosisForm.markdown,
-              scores: parseEditorJson(diagnosisForm.scoresJson) as Prospect['diagnosis']['scores'],
-              structured: parseEditorJson(diagnosisForm.structuredJson) as Record<string, unknown> | undefined,
-            }}
+            diagnosis={
+              diagnosisValidation.payload
+                ? {
+                    ...prospect.diagnosis,
+                    ...diagnosisValidation.payload,
+                  }
+                : prospect.diagnosis
+            }
           />
         </div>
       </Card>

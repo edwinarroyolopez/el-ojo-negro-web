@@ -158,6 +158,18 @@ export type UpdateProspectPayload = Partial<
 
 export type UpdateDiagnosisPayload = Partial<ProspectDiagnosis>;
 
+export type GeneratedDiagnosisJson = {
+  title: string;
+  slug?: string;
+  visibility?: DiagnosisVisibility;
+  status?: DiagnosisStatus;
+  summary: string;
+  markdown: string;
+  publicNotes?: string;
+  scores?: Record<string, unknown> | Array<Record<string, unknown>>;
+  structured?: Record<string, unknown>;
+};
+
 export type PublishDiagnosisPayload = {
   slug?: string;
   visibility?: DiagnosisVisibility;

@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { prospectsService } from '../services/prospects.service';
-import { safeParseJson, summarizeImportPayload } from '../utils';
+import { summarizeImportPayload, validateImportPayload } from '../utils';
 
 const Page = styled.div`
   display: grid;
@@ -109,24 +109,66 @@ const Tag = styled.span`
   font-size: ${({ theme }) => theme.typography.size.xs};
 `;
 
-const SamplePayload = `[
-  {
-    "businessName": "Massai Clinica",
-    "category": "Clinica estética",
-    "city": "Medellin",
-    "website": "https://massai.com.co",
-    "instagramUrl": "https://instagram.com/massaiclinica",
-    "phone": "+57 316 759 8999",
-    "scores": {
-      "growthOpportunityScore": 88,
-      "confidenceScore": 84
+const ValidationList = styled.ul`
+  margin: 0.85rem 0 0;
+  padding-left: 1.1rem;
+  color: ${({ theme }) => theme.colors.danger};
+`;
+
+const SamplePayload = `{
+  "researchVersion": 1,
+  "generatedAt": "2026-05-09",
+  "promptTarget": {
+    "TARGET_CATEGORY": "Clinicas esteticas",
+    "TARGET_LOCATION": "Medellín, Colombia",
+    "TARGET_EXPANSION_AREA": "Valle de Aburrá"
+  },
+  "candidates": [
+    {
+      "rawDiscovery": {
+        "name": "Massai Clínica",
+        "sourceUrls": [
+          "https://www.massai.com.co/",
+          "https://www.instagram.com/massaiclinica/"
+        ],
+        "evidenceNotes": "Sitio propio e Instagram; caso fuerte para diagnóstico."
+      },
+      "normalizedCandidate": {
+        "name": "Massai Clínica",
+        "category": "Clinicas esteticas",
+        "country": "Colombia",
+        "city": "Medellín",
+        "phones": ["+57 316 759 8999"],
+        "instagram": "https://www.instagram.com/massaiclinica/",
+        "website": "https://www.massai.com.co/"
+      },
+      "providerIntelligence": {
+        "signals": {
+          "websitePresent": true,
+          "instagramPresent": true,
+          "phoneVisible": true,
+          "signalTokens": ["web", "instagram", "whatsapp", "servicios_visibles"]
+        },
+        "scores": {
+          "dataQualityScore": 90,
+          "supplyFitScore": 88,
+          "commerceReadinessScore": 84,
+          "growthOpportunityScore": 78,
+          "confidenceScore": 88
+        }
+      },
+      "importProjection": {
+        "description": "Clínica estética en El Poblado con web funcional e Instagram activo.",
+        "internalNotes": "intel: rec=priorizar_para_ambos"
+      }
     }
-  }
-]`;
+  ]
+}`;
 
 export function ProspectsImportPage() {
   const [raw, setRaw] = useState('');
   const parsed = useMemo(() => summarizeImportPayload(raw), [raw]);
+  const validation = useMemo(() => validateImportPayload(raw), [raw]);
 
   const importMutation = useMutation({
     mutationFn: prospectsService.importProspects,
@@ -139,13 +181,17 @@ export function ProspectsImportPage() {
   });
 
   async function handleImport() {
-    const payload = safeParseJson(raw);
-    if (!payload) {
+    if (!validation.isJsonValid) {
       toast.error('El JSON no es valido todavía.');
       return;
     }
 
-    await importMutation.mutateAsync(payload);
+    if (!validation.isFormatValid) {
+      toast.error('El formato no corresponde al esquema esperado para importación.');
+      return;
+    }
+
+    await importMutation.mutateAsync(validation.parsed);
   }
 
   return (
@@ -173,7 +219,7 @@ export function ProspectsImportPage() {
         <Card>
           <Kicker>JSON crudo</Kicker>
           <Title style={{ fontSize: '2rem' }}>Pega 1 o 50 prospectos</Title>
-          <Lead>La lectura es tolerante: array, objeto individual o lote con `items`, `prospects`, `results`, `leads` o `data`.</Lead>
+          <Lead>La lectura es tolerante: array, objeto individual o lote con `candidates`, `items`, `prospects`, `results`, `leads` o `data`. Antes de ir al backend se valida que el JSON sea correcto y que tenga el formato esperado.</Lead>
           <Textarea value={raw} onChange={(event) => setRaw(event.target.value)} spellCheck={false} placeholder='Pega aqui el JSON de Panalbee Providers...' />
         </Card>
 
@@ -197,9 +243,18 @@ export function ProspectsImportPage() {
             <Kicker>Lectura de importacion</Kicker>
             <Lead>
               {raw.trim()
-                ? `Se detectaron ${parsed.count} registros. El backend conservara payload crudo, señales, normalizacion y resumen por item.`
+                ? validation.isFormatValid
+                  ? `Se detectaron ${parsed.count} registros en formato ${validation.format}. El backend conservará payload crudo, señales, normalización y resumen por item.`
+                  : 'El JSON existe, pero todavía no cumple el formato esperado para importación.'
                 : 'Aún no hay JSON validado. Esta vista debe mostrar errores humanos, no humo.'}
             </Lead>
+            {validation.errors.length > 0 ? (
+              <ValidationList>
+                {validation.errors.map((error) => (
+                  <li key={error}>{error}</li>
+                ))}
+              </ValidationList>
+            ) : null}
             <TagList>
               {parsed.signals.length > 0
                 ? parsed.signals.map((signal) => <Tag key={signal}>{signal}</Tag>)

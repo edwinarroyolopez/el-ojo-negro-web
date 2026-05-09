@@ -17,18 +17,19 @@ Publica:
 
 1. El operador entra por login con `phone`.
 2. Pega JSON de Panalbee Providers en `/dashboard/prospects/import`.
-3. La UI valida localmente el JSON, detecta volumen, categoria dominante, ciudad dominante y señales básicas.
-4. El backend importa, deduplica y devuelve resumen por item.
-5. El operador trabaja el radar en `/dashboard/prospects` con métricas y filtros.
-6. Desde el radar entra a `/dashboard/prospects/[id]`.
-7. En el detalle puede:
+3. La UI valida primero JSON y formato esperado, incluyendo el envelope `researchVersion + candidates[]`.
+4. La UI detecta volumen, categoria dominante, ciudad dominante y señales básicas.
+5. El backend importa, deduplica y devuelve resumen por item.
+6. El operador trabaja el radar en `/dashboard/prospects` con métricas y filtros.
+7. Desde el radar entra a `/dashboard/prospects/[id]`.
+8. En el detalle puede:
    - editar estado comercial
    - guardar notas internas
    - copiar prompt de investigación
    - copiar mensaje base de WhatsApp
    - pegar/editar diagnóstico
    - guardar o publicar
-8. Si el diagnóstico tiene slug y contenido, se publica y puede verse en `/diagnosticos/[slug]`.
+9. Si el diagnóstico tiene slug y contenido, se publica y puede verse en `/diagnosticos/[slug]`.
 
 ## Flujo público
 
