@@ -24,6 +24,9 @@ import { ProspectPriorityBadge, ProspectStatusBadge } from './ProspectStatusBadg
 const Page = styled.div`
   display: grid;
   gap: 1.15rem;
+  max-width: 1540px;
+  margin: 0 auto;
+  width: 100%;
 `;
 
 const Hero = styled(Card)`
@@ -92,6 +95,22 @@ const Row = styled.div`
 
   span {
     color: ${({ theme }) => theme.colors.textSoft};
+  }
+
+  strong {
+    min-width: 0;
+    text-align: right;
+  }
+`;
+
+const ExternalValue = styled.a`
+  color: ${({ theme }) => theme.colors.text};
+  text-decoration: none;
+  word-break: break-word;
+  transition: color 180ms ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.accent};
   }
 `;
 
@@ -261,6 +280,16 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const prompt = buildResearchPrompt(prospect);
   const whatsappMessage = prospect.outreach.whatsappMessage || buildWhatsAppMessage(prospect);
   const publicUrl = prospect.diagnosis.slug ? `/diagnosticos/${prospect.diagnosis.slug}` : null;
+  const websiteUrl = prospect.website?.startsWith('http')
+    ? prospect.website
+    : prospect.website
+      ? `https://${prospect.website}`
+      : null;
+  const instagramUrl = prospect.instagram?.startsWith('http')
+    ? prospect.instagram
+    : prospect.instagram
+      ? `https://instagram.com/${prospect.instagram.replace('@', '')}`
+      : null;
 
   async function copyWhatsApp() {
     await navigator.clipboard.writeText(whatsappMessage);
@@ -313,8 +342,30 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
           <Card>
             <Kicker>Prospecto</Kicker>
             <RowList>
-              <Row><span>Website</span><strong>{prospect.website || 'Sin website'}</strong></Row>
-              <Row><span>Instagram</span><strong>{prospect.instagram || 'Sin Instagram'}</strong></Row>
+              <Row>
+                <span>Website</span>
+                <strong>
+                  {websiteUrl ? (
+                    <ExternalValue href={websiteUrl} target="_blank" rel="noreferrer">
+                      {prospect.website}
+                    </ExternalValue>
+                  ) : (
+                    'Sin website'
+                  )}
+                </strong>
+              </Row>
+              <Row>
+                <span>Instagram</span>
+                <strong>
+                  {instagramUrl ? (
+                    <ExternalValue href={instagramUrl} target="_blank" rel="noreferrer">
+                      {prospect.instagram}
+                    </ExternalValue>
+                  ) : (
+                    'Sin Instagram'
+                  )}
+                </strong>
+              </Row>
               <Row><span>Telefono</span><strong>{prospect.phones[0] || 'Sin telefono'}</strong></Row>
               <Row><span>Slug</span><strong>{prospect.diagnosis.slug || 'Se sugerirá al guardar'}</strong></Row>
             </RowList>
@@ -352,7 +403,14 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
             <Lead>{prospect.description || 'Sin descripción extendida todavía.'}</Lead>
             <RowList>
               {prospect.sourceUrls.map((source) => (
-                <Row key={source}><span>Fuente</span><strong>{source}</strong></Row>
+                <Row key={source}>
+                  <span>Fuente</span>
+                  <strong>
+                    <ExternalValue href={source} target="_blank" rel="noreferrer">
+                      {source}
+                    </ExternalValue>
+                  </strong>
+                </Row>
               ))}
             </RowList>
             <div style={{ marginTop: '1rem' }}>

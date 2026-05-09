@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import styled from 'styled-components';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Globe, Instagram } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { Prospect } from '../types';
@@ -70,6 +70,31 @@ const Lead = styled.p`
   color: ${({ theme }) => theme.colors.textMuted};
 `;
 
+const LinkRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+`;
+
+const ExternalLink = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.45rem 0.75rem;
+  border-radius: ${({ theme }) => theme.radius.pill};
+  border: ${({ theme }) => theme.borders.subtle};
+  color: ${({ theme }) => theme.colors.textMuted};
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 180ms ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+    border-color: ${({ theme }) => theme.colors.borderStrong};
+    background: ${({ theme }) => theme.colors.panelStrong};
+  }
+`;
+
 const Signals = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -102,6 +127,16 @@ const ScoreMeta = styled.div`
 export function ProspectCard({ prospect }: { prospect: Prospect }) {
   const growth = Math.round(prospect.scores.growthOpportunityScore ?? 0);
   const confidence = Math.round(prospect.scores.confidenceScore ?? 0);
+  const websiteUrl = prospect.website?.startsWith('http')
+    ? prospect.website
+    : prospect.website
+      ? `https://${prospect.website}`
+      : null;
+  const instagramUrl = prospect.instagram?.startsWith('http')
+    ? prospect.instagram
+    : prospect.instagram
+      ? `https://instagram.com/${prospect.instagram.replace('@', '')}`
+      : null;
   const signals = [
     prospect.website ? 'Web presente' : '',
     prospect.instagram ? 'Instagram presente' : '',
@@ -134,7 +169,24 @@ export function ProspectCard({ prospect }: { prospect: Prospect }) {
         ))}
       </Signals>
 
-      <Lead>{prospect.website || prospect.instagram || 'Sin canal principal identificado aún.'}</Lead>
+      {websiteUrl || instagramUrl ? (
+        <LinkRow>
+          {websiteUrl ? (
+            <ExternalLink href={websiteUrl} target="_blank" rel="noreferrer" aria-label={`Abrir sitio web de ${prospect.name} en nueva pestaña`}>
+              <Globe size={15} /> Sitio web
+              <ArrowUpRight size={14} />
+            </ExternalLink>
+          ) : null}
+          {instagramUrl ? (
+            <ExternalLink href={instagramUrl} target="_blank" rel="noreferrer" aria-label={`Abrir Instagram de ${prospect.name} en nueva pestaña`}>
+              <Instagram size={15} /> Instagram
+              <ArrowUpRight size={14} />
+            </ExternalLink>
+          ) : null}
+        </LinkRow>
+      ) : (
+        <Lead>Sin canal principal identificado aún.</Lead>
+      )}
 
       <Footer>
         <ScoreMeta>
