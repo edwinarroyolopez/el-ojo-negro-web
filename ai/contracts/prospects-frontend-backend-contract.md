@@ -94,6 +94,15 @@ Frontend must never expect public payloads to contain:
 2. Publish with `POST /prospects/:id/diagnosis/publish`
 3. Read public page with `GET /public/diagnostics/:slug`
 
+## Slide prompt flow
+
+- The frontend builds the slide-production prompt locally.
+- No backend endpoint stores the prompt.
+- The prompt is enabled only when the current prospect already has diagnosis content or a diagnosis lifecycle state of `DRAFT`, `READY`, or `PUBLISHED`.
+- The deliverable sent to the prospect is:
+  - the published diagnosis page
+  - a 4-slide deck generated externally from the diagnosis prompt
+
 ## Import shape note
 
 The frontend import screen validates these accepted shapes before sending them:

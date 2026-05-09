@@ -23,6 +23,7 @@ import {
   diagnosisToGeneratedJson,
   validateGeneratedDiagnosisJson,
 } from '../utils';
+import { buildSlidesGenerationPrompt } from '../utils/slides-prompt.utils';
 import { CopyPromptPanel } from './CopyPromptPanel';
 import { DiagnosisEditor } from './DiagnosisEditor';
 import { DiagnosisPreview } from './DiagnosisPreview';
@@ -173,6 +174,25 @@ const ScoreCard = styled.div`
   }
 `;
 
+const HelperCard = styled(Card)`
+  display: grid;
+  gap: 0.85rem;
+`;
+
+const BulletList = styled.ul`
+  margin: 0;
+  padding-left: 1.1rem;
+  color: ${({ theme }) => theme.colors.textMuted};
+  display: grid;
+  gap: 0.35rem;
+`;
+
+const HelperText = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.textSoft};
+  font-size: ${({ theme }) => theme.typography.size.sm};
+`;
+
 const STATUSES: ProspectStatus[] = [
   'IMPORTED',
   'QUALIFIED',
@@ -308,10 +328,21 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const whatsappUrl = primaryPhone
     ? `https://wa.me/${primaryPhone.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`
     : null;
+  const hasDiagnosisGenerated = Boolean(
+    prospect.diagnosis.markdown?.trim() ||
+      prospect.diagnosis.summary?.trim() ||
+      ['DRAFT', 'READY', 'PUBLISHED'].includes(prospect.diagnosis.status ?? ''),
+  );
 
   async function copyWhatsApp() {
     await navigator.clipboard.writeText(whatsappMessage);
     toast.success('Mensaje de WhatsApp copiado');
+  }
+
+  async function copySlidesPrompt() {
+    const slidesPrompt = buildSlidesGenerationPrompt(prospect, { publicUrl });
+    await navigator.clipboard.writeText(slidesPrompt);
+    toast.success('Prompt para slides copiado');
   }
 
   async function markContacted() {
@@ -351,6 +382,18 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
             <PhoneCall size={16} /> Ver guion de contacto
           </Button>
           <Button variant="secondary" onClick={copyWhatsApp}>Copiar mensaje de WhatsApp</Button>
+          <Button
+            variant="secondary"
+            onClick={copySlidesPrompt}
+            disabled={!hasDiagnosisGenerated}
+            title={
+              hasDiagnosisGenerated
+                ? 'Copiar prompt para slides'
+                : 'Genera primero el diagnóstico para habilitar el prompt de slides'
+            }
+          >
+            Copiar prompt para slides
+          </Button>
           <Button variant="secondary" onClick={saveNotes} disabled={updateProspectMutation.isPending}>Guardar notas</Button>
           <Button onClick={markContacted} disabled={updateStatusMutation.isPending || updateProspectMutation.isPending}>Marcar contactado</Button>
           {whatsappUrl ? (
@@ -470,6 +513,30 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
 
         <div style={{ display: 'grid', gap: '1rem' }}>
           <CopyPromptPanel value={prompt} />
+          <HelperCard>
+            <Kicker>Entregable para el prospecto</Kicker>
+            <Lead style={{ marginTop: 0 }}>
+              El prospecto recibe dos piezas:
+            </Lead>
+            <BulletList>
+              <li>1. El diagnóstico publicado en esta página</li>
+              <li>2. Un deck de 4 slides generado a partir del diagnóstico</li>
+            </BulletList>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <Button
+                variant="secondary"
+                onClick={copySlidesPrompt}
+                disabled={!hasDiagnosisGenerated}
+              >
+                Copiar prompt para slides
+              </Button>
+            </div>
+            {!hasDiagnosisGenerated ? (
+              <HelperText>
+                Genera primero el diagnóstico para habilitar el prompt de slides.
+              </HelperText>
+            ) : null}
+          </HelperCard>
           <Card>
             <DiagnosisEditor
               value={diagnosisJson}

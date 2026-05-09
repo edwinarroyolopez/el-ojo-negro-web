@@ -28,6 +28,7 @@ Publica:
    - abrir el guion de contacto
    - abrir el norte comercial
    - copiar prompt de investigación
+   - copiar prompt de producción de slides cuando ya existe diagnóstico
    - copiar mensaje base de WhatsApp
    - pegar/editar diagnóstico
    - guardar o publicar
@@ -71,6 +72,18 @@ El norte comercial debe estar disponible siempre como referencia táctica privad
 - Debe estar disponible desde radar y detalle.
 - Debe diferenciar WhatsApp inicial, WhatsApp posterior a llamada y seguimiento si no responde.
 - No reemplaza el prompt de investigación ni el diagnóstico público.
+
+## Entregable al prospecto
+
+- Existe un prompt de investigación inicial para construir el diagnóstico.
+- Existe un prompt de producción de slides, posterior al diagnóstico.
+- El prompt de slides solo se habilita cuando ya existe diagnóstico.
+- El entregable compartido con el prospecto es:
+  - diagnóstico publicado
+  - deck de 4 slides
+- Las slides deben mantener lenguaje público seguro.
+- Las slides deben usar identidad visual del prospecto.
+- El objetivo no es vender una web, sino traducir el diagnóstico en una pieza clara y compartible.
 
 ## Sandbox de viabilidad
 

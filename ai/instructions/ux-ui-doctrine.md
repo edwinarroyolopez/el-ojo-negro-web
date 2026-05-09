@@ -28,6 +28,7 @@
 - La experiencia debe facilitar copiar, revisar y publicar.
 - Preview interno debe permitir validar tono público antes de exponerlo.
 - El guion de apertura comercial debe sentirse como herramienta operativa privada, no como contenido de marketing.
+- El prompt de slides debe aparecer solo cuando el diagnóstico ya existe y debe sentirse como una herramienta de producción, no como un feature decorativo.
 
 ### Outreach privado
 
@@ -43,6 +44,16 @@
 - La escalera comercial es: `Diagnóstico gratuito → Sistema mínimo de captación → Growth Partner mensual`.
 - Este contenido es privado y no debe aparecer en la página pública del diagnóstico.
 - Debe diferenciar WhatsApp inicial, WhatsApp posterior a llamada y seguimiento si no responde.
+
+### Slides para prospecto
+
+- Existe un prompt de producción de slides posterior al diagnóstico.
+- El entregable compartido con el prospecto es:
+  - diagnóstico publicado
+  - deck de 4 slides
+- Las slides deben usar identidad visual del prospecto.
+- Las slides deben mantener lenguaje público seguro.
+- El objetivo no es vender una web, sino traducir el diagnóstico en una pieza clara y compartible.
 
 ### Página pública
 
