@@ -1,11 +1,10 @@
-'use client';
-
 import Link from 'next/link';
 import styled from 'styled-components';
-import { ArrowUpRight, Globe, Instagram } from 'lucide-react';
+import { ArrowUpRight, Globe, Instagram, MessageCircle } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { Prospect } from '../types';
+import { buildWhatsAppMessage } from '../utils';
 import { ProspectPriorityBadge, ProspectStatusBadge } from './ProspectStatusBadge';
 
 const Wrapper = styled(Card)`
@@ -70,6 +69,18 @@ const Lead = styled.p`
   color: ${({ theme }) => theme.colors.textMuted};
 `;
 
+const ContactLine = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+`;
+
+const Phone = styled.span`
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.size.sm};
+`;
+
 const LinkRow = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -127,6 +138,7 @@ const ScoreMeta = styled.div`
 export function ProspectCard({ prospect }: { prospect: Prospect }) {
   const growth = Math.round(prospect.scores.growthOpportunityScore ?? 0);
   const confidence = Math.round(prospect.scores.confidenceScore ?? 0);
+  const primaryPhone = prospect.phones[0] || prospect.normalizedPrimaryPhone || '';
   const websiteUrl = prospect.website?.startsWith('http')
     ? prospect.website
     : prospect.website
@@ -137,12 +149,14 @@ export function ProspectCard({ prospect }: { prospect: Prospect }) {
     : prospect.instagram
       ? `https://instagram.com/${prospect.instagram.replace('@', '')}`
       : null;
-  const signals = [
-    prospect.website ? 'Web presente' : '',
-    prospect.instagram ? 'Instagram presente' : '',
-    prospect.outreach?.whatsappMessage || prospect.phones.length ? 'WhatsApp visible' : '',
-    prospect.city || '',
-  ].filter(Boolean);
+  const whatsappMessage = encodeURIComponent(
+    prospect.outreach?.whatsappMessage || buildWhatsAppMessage(prospect),
+  );
+  const whatsappPhoneDigits = primaryPhone.replace(/\D/g, '');
+  const whatsappUrl = whatsappPhoneDigits
+    ? `https://wa.me/${whatsappPhoneDigits}?text=${whatsappMessage}`
+    : null;
+  const signals = [] as string[];
 
   return (
     <Wrapper>
@@ -187,6 +201,18 @@ export function ProspectCard({ prospect }: { prospect: Prospect }) {
       ) : (
         <Lead>Sin canal principal identificado aún.</Lead>
       )}
+
+      {primaryPhone || whatsappUrl ? (
+        <ContactLine>
+          {primaryPhone ? <Phone>{primaryPhone}</Phone> : null}
+          {whatsappUrl ? (
+            <ExternalLink href={whatsappUrl} target="_blank" rel="noreferrer" aria-label={`Escribir por WhatsApp a ${prospect.name} en nueva pestaña`}>
+              <MessageCircle size={15} /> WhatsApp
+              <ArrowUpRight size={14} />
+            </ExternalLink>
+          ) : null}
+        </ContactLine>
+      ) : null}
 
       <Footer>
         <ScoreMeta>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import styled from 'styled-components';
+import { ArrowUpRight, Globe, Instagram, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -104,6 +105,9 @@ const Row = styled.div`
 `;
 
 const ExternalValue = styled.a`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   color: ${({ theme }) => theme.colors.text};
   text-decoration: none;
   word-break: break-word;
@@ -280,6 +284,7 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const prompt = buildResearchPrompt(prospect);
   const whatsappMessage = prospect.outreach.whatsappMessage || buildWhatsAppMessage(prospect);
   const publicUrl = prospect.diagnosis.slug ? `/diagnosticos/${prospect.diagnosis.slug}` : null;
+  const primaryPhone = prospect.phones[0] || prospect.normalizedPrimaryPhone || '';
   const websiteUrl = prospect.website?.startsWith('http')
     ? prospect.website
     : prospect.website
@@ -290,6 +295,9 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
     : prospect.instagram
       ? `https://instagram.com/${prospect.instagram.replace('@', '')}`
       : null;
+  const whatsappUrl = primaryPhone
+    ? `https://wa.me/${primaryPhone.replace(/\D/g, '')}?text=${encodeURIComponent(whatsappMessage)}`
+    : null;
 
   async function copyWhatsApp() {
     await navigator.clipboard.writeText(whatsappMessage);
@@ -329,6 +337,13 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
           <Button variant="secondary" onClick={copyWhatsApp}>Copiar mensaje de WhatsApp</Button>
           <Button variant="secondary" onClick={saveNotes} disabled={updateProspectMutation.isPending}>Guardar notas</Button>
           <Button onClick={markContacted} disabled={updateStatusMutation.isPending || updateProspectMutation.isPending}>Marcar contactado</Button>
+          {whatsappUrl ? (
+            <a href={whatsappUrl} target="_blank" rel="noreferrer">
+              <Button variant="secondary">
+                <MessageCircle size={16} /> Escribir por WhatsApp
+              </Button>
+            </a>
+          ) : null}
           {publicUrl ? (
             <Link href={publicUrl} target="_blank">
               <Button variant="ghost">Ver página pública</Button>
@@ -347,7 +362,9 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
                 <strong>
                   {websiteUrl ? (
                     <ExternalValue href={websiteUrl} target="_blank" rel="noreferrer">
+                      <Globe size={15} />
                       {prospect.website}
+                      <ArrowUpRight size={14} />
                     </ExternalValue>
                   ) : (
                     'Sin website'
@@ -359,14 +376,29 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
                 <strong>
                   {instagramUrl ? (
                     <ExternalValue href={instagramUrl} target="_blank" rel="noreferrer">
+                      <Instagram size={15} />
                       {prospect.instagram}
+                      <ArrowUpRight size={14} />
                     </ExternalValue>
                   ) : (
                     'Sin Instagram'
                   )}
                 </strong>
               </Row>
-              <Row><span>Telefono</span><strong>{prospect.phones[0] || 'Sin telefono'}</strong></Row>
+              <Row>
+                <span>WhatsApp</span>
+                <strong>
+                  {whatsappUrl ? (
+                    <ExternalValue href={whatsappUrl} target="_blank" rel="noreferrer">
+                      <MessageCircle size={15} />
+                      {primaryPhone}
+                      <ArrowUpRight size={14} />
+                    </ExternalValue>
+                  ) : (
+                    primaryPhone || 'Sin telefono'
+                  )}
+                </strong>
+              </Row>
               <Row><span>Slug</span><strong>{prospect.diagnosis.slug || 'Se sugerirá al guardar'}</strong></Row>
             </RowList>
           </Card>
@@ -407,6 +439,7 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
                   <span>Fuente</span>
                   <strong>
                     <ExternalValue href={source} target="_blank" rel="noreferrer">
+                      <ArrowUpRight size={14} />
                       {source}
                     </ExternalValue>
                   </strong>
