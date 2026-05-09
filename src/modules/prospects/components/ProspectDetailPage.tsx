@@ -348,7 +348,7 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
             ¿Por qué llamo?
           </Button>
           <Button variant="secondary" onClick={() => setIsScriptModalOpen(true)}>
-            <PhoneCall size={16} /> Ver guion de llamada
+            <PhoneCall size={16} /> Ver guion de contacto
           </Button>
           <Button variant="secondary" onClick={copyWhatsApp}>Copiar mensaje de WhatsApp</Button>
           <Button variant="secondary" onClick={saveNotes} disabled={updateProspectMutation.isPending}>Guardar notas</Button>

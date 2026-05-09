@@ -1,8 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { X, Copy, PhoneCall, CheckCircle2, Compass } from 'lucide-react';
+import {
+  X,
+  Copy,
+  PhoneCall,
+  CheckCircle2,
+  Compass,
+  MessageCircle,
+  MessagesSquare,
+  HelpCircle,
+  CornerDownRight,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -87,14 +97,50 @@ const Actions = styled.div`
   margin-top: 1rem;
 `;
 
+const Anchor = styled.div`
+  margin-top: 1rem;
+  border: ${({ theme }) => theme.borders.emphasized};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  padding: 0.9rem 1rem;
+  background: rgba(205, 180, 124, 0.07);
+  color: ${({ theme }) => theme.colors.text};
+`;
+
+const TabRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1rem;
+`;
+
+const TabButton = styled.button<{ $active: boolean }>`
+  appearance: none;
+  border-radius: ${({ theme }) => theme.radius.pill};
+  min-height: 40px;
+  padding: 0.5rem 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  border: 1px solid
+    ${({ $active, theme }) =>
+      $active ? 'rgba(205, 180, 124, 0.35)' : theme.colors.border};
+  background: ${({ $active }) =>
+      $active ? 'rgba(205, 180, 124, 0.08)' : 'rgba(255,255,255,0.03)'};
+  color: ${({ $active, theme }) =>
+      $active ? theme.colors.accent : theme.colors.textMuted};
+  transition: all 180ms ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+    border-color: ${({ theme }) => theme.colors.borderStrong};
+  }
+`;
+
 const SectionGrid = styled.div`
   display: grid;
   gap: 1rem;
   margin-top: 1.2rem;
-
-  @media (min-width: 980px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 `;
 
 const SectionCard = styled(Card)`
@@ -134,6 +180,14 @@ type Props = {
   onOpenCommercialNorth?: () => void;
 };
 
+const SECTION_ICONS = {
+  call: PhoneCall,
+  whatsappInitial: MessageCircle,
+  ifTheyReply: MessagesSquare,
+  interestQuestions: HelpCircle,
+  followUp: CornerDownRight,
+} as const;
+
 export function OutreachScriptModal({
   prospect,
   open,
@@ -142,6 +196,16 @@ export function OutreachScriptModal({
   onMarkContacted,
   onOpenCommercialNorth,
 }: Props) {
+  const sections = prospect
+    ? buildOutreachScriptSections(prospect, publicUrl)
+    : [];
+  const fullScript = prospect
+    ? buildOutreachScriptBundle(prospect, publicUrl)
+    : '';
+  const [activeKey, setActiveKey] = useState<
+    'call' | 'whatsappInitial' | 'ifTheyReply' | 'interestQuestions' | 'followUp'
+  >('call');
+
   useEffect(() => {
     if (!open) return;
 
@@ -157,8 +221,8 @@ export function OutreachScriptModal({
 
   if (!prospect) return null;
 
-  const sections = buildOutreachScriptSections(prospect, publicUrl);
-  const fullScript = buildOutreachScriptBundle(prospect, publicUrl);
+  const activeSection =
+    sections.find((section) => section.key === activeKey) ?? sections[0];
 
   async function handleCopy(text: string, label: string) {
     await navigator.clipboard.writeText(text);
@@ -168,14 +232,14 @@ export function OutreachScriptModal({
   return (
     <>
       <Overlay $open={open} aria-hidden={!open} onClick={onClose} />
-      <Shell $open={open} role="dialog" aria-modal="true" aria-label="Guion de apertura comercial">
+      <Shell $open={open} role="dialog" aria-modal="true" aria-label="Guion de contacto">
         <Container>
           <Header>
             <div>
               <Kicker>Outreach privado</Kicker>
-              <Title>Guion de apertura comercial</Title>
+              <Title>Guion de contacto</Title>
               <Lead>
-                Este guion no es contenido público. Su objetivo es conseguir permiso para enviar el diagnóstico express gratuito de El Ojo Negro con un lenguaje sobrio, estratégico y sereno.
+                Este guion es privado. El objetivo inicial no es vender una web: es conseguir permiso para entregar un diagnóstico útil.
               </Lead>
             </div>
 
@@ -185,8 +249,14 @@ export function OutreachScriptModal({
           </Header>
 
           <Actions>
+            <Button
+              variant="secondary"
+              onClick={() => handleCopy(activeSection.text, activeSection.title)}
+            >
+              <Copy size={16} /> Copiar sección actual
+            </Button>
             <Button variant="secondary" onClick={() => handleCopy(fullScript, 'Guion completo')}>
-              <Copy size={16} /> Copiar guion completo
+              <Copy size={16} /> Copiar todo
             </Button>
             {onOpenCommercialNorth ? (
               <Button variant="ghost" onClick={onOpenCommercialNorth}>
@@ -200,21 +270,39 @@ export function OutreachScriptModal({
             ) : null}
           </Actions>
 
+          <Anchor>
+            El contacto puede iniciar por llamada o por WhatsApp. El objetivo no es vender una web: es conseguir permiso para entregar un diagnóstico útil.
+          </Anchor>
+
+          <TabRow>
+            {sections.map((section) => {
+              const Icon = SECTION_ICONS[section.key];
+              return (
+                <TabButton
+                  key={section.key}
+                  type="button"
+                  $active={section.key === activeSection.key}
+                  onClick={() => setActiveKey(section.key)}
+                >
+                  <Icon size={15} /> {section.title}
+                </TabButton>
+              );
+            })}
+          </TabRow>
+
           <SectionGrid>
-            {sections.map((section) => (
-              <SectionCard key={section.key}>
-                <SectionHeader>
-                  <SectionTitle>{section.title}</SectionTitle>
-                  <Button
-                    variant="ghost"
-                    onClick={() => handleCopy(section.text, section.title)}
-                  >
-                    <Copy size={15} /> Copiar
-                  </Button>
-                </SectionHeader>
-                <SectionText>{section.text}</SectionText>
-              </SectionCard>
-            ))}
+            <SectionCard key={activeSection.key}>
+              <SectionHeader>
+                <SectionTitle>{activeSection.title}</SectionTitle>
+                <Button
+                  variant="ghost"
+                  onClick={() => handleCopy(activeSection.text, activeSection.title)}
+                >
+                  <Copy size={15} /> Copiar
+                </Button>
+              </SectionHeader>
+              <SectionText>{activeSection.text}</SectionText>
+            </SectionCard>
           </SectionGrid>
 
           <Actions>

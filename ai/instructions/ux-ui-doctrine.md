@@ -31,7 +31,8 @@
 
 ### Outreach privado
 
-- El guion de apertura busca conseguir permiso para enviar el diagnóstico express gratuito.
+- El contacto puede iniciar por llamada o por WhatsApp.
+- El guion de contacto busca conseguir permiso para enviar el diagnóstico express gratuito.
 - Debe usar lenguaje de oportunidad, nunca acusatorio.
 - Debe estar accesible desde radar y detalle.
 - Debe permitir copiar secciones o el bloque completo con rapidez.
@@ -41,6 +42,7 @@
 - El objetivo inicial es abrir permiso para entregar diagnóstico gratuito.
 - La escalera comercial es: `Diagnóstico gratuito → Sistema mínimo de captación → Growth Partner mensual`.
 - Este contenido es privado y no debe aparecer en la página pública del diagnóstico.
+- Debe diferenciar WhatsApp inicial, WhatsApp posterior a llamada y seguimiento si no responde.
 
 ### Página pública
 
