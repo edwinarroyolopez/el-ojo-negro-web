@@ -31,6 +31,12 @@ const Form = styled.form`
   gap: 0.9rem;
 `;
 
+const Note = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.textSoft};
+  font-size: ${({ theme }) => theme.typography.size.xs};
+`;
+
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -42,10 +48,16 @@ export function LoginForm() {
   async function handleSubmit(formData: FormData) {
     setIsLoading(true);
     try {
-      const email = String(formData.get('email') || '');
-      const password = String(formData.get('password') || '');
-      const data = await authService.login({ email, password });
+      const phone = String(formData.get('phone') || '');
+      const data = await authService.login({ phone });
+      const session = await authService.me().catch(() => null);
+
       login(data);
+
+      if (session) {
+        login({ token: data.token, user: session.user, account: session.account });
+      }
+
       toast.success('Sesion iniciada');
       router.replace(next);
     } catch {
@@ -61,8 +73,8 @@ export function LoginForm() {
       <Lead>El shell protegido resguarda operaciones, direccion y decision.</Lead>
 
       <Form action={handleSubmit}>
-        <Input label="Correo" name="email" type="email" placeholder="operador@elojonegro.com" required />
-        <Input label="Contrasena" name="password" type="password" placeholder="••••••••" required />
+        <Input label="Telefono" name="phone" type="tel" placeholder="3001234567 o +573001234567" required />
+        <Note>El backend actual autentica por telefono. El token se envía después como `Bearer` en cada request privada.</Note>
         <Button type="submit" disabled={isLoading}>
           {isLoading ? 'Entrando...' : 'Entrar'}
         </Button>

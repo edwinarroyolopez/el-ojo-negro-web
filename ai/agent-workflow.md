@@ -1,5 +1,14 @@
 # Agent Workflow - EL OJO NEGRO Web
 
+## Overlay operativo — sistema de prospectos y diagnosticos
+
+- El backend real vive en `http://localhost:7000/api` y el frontend debe consumirlo como fuente principal.
+- Auth web debe seguir el modelo vigente de backend: login por `phone`, token tipo `accessToken`, transporte `Authorization: Bearer`.
+- Rutas privadas del radar y constructor deben vivir solo dentro de `src/app/(protected)`.
+- La pagina publica por slug debe vivir solo en `src/app/(public)/diagnosticos/[slug]` y no cargar shell privado.
+- `src/modules/prospects/*` es el bounded context de importacion, radar, detalle, publicacion y experiencia publica.
+- La zona de viabilidad es exploratoria y local. No debe presentarse como promesa de resultado.
+
 ## 1) Contexto canonico
 
 Este proyecto es la base digital de **EL OJO NEGRO**.

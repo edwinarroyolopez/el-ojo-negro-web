@@ -1,9 +1,12 @@
 'use client';
 
 import type { ReactNode } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
 import styled from 'styled-components';
+import { useQuery } from '@tanstack/react-query';
 import { PanelLeftClose, PanelLeftOpen, LayoutGrid, LogOut } from 'lucide-react';
+import { authService } from '@/modules/auth/services/auth.service';
 import { useRequireAuth } from '@/modules/auth/hooks/useRequireAuth';
 import { useAuthStore } from '@/stores/auth.store';
 import { useUiStore } from '@/stores/ui.store';
@@ -88,8 +91,27 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const { isReady } = useRequireAuth();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+  const account = useAuthStore((state) => state.account);
+  const setAccount = useAuthStore((state) => state.setAccount);
+  const token = useAuthStore((state) => state.token);
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
+
+  const meQuery = useQuery({
+    queryKey: ['auth', 'me', token],
+    queryFn: authService.me,
+    enabled: isReady,
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
+  useEffect(() => {
+    if (meQuery.data) {
+      setUser(meQuery.data.user);
+      setAccount(meQuery.data.account);
+    }
+  }, [meQuery.data, setAccount, setUser]);
 
   if (!isReady) {
     return <Screen>Verificando acceso...</Screen>;
@@ -100,10 +122,13 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
       <Sidebar $open={isSidebarOpen}>
         <Brand>EL OJO NEGRO</Brand>
         <p style={{ margin: '0.35rem 0 0', color: '#8f887d', fontSize: '0.8rem', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
-          Shell privado
+          Arquitecto de Percepcion
         </p>
         <Nav>
           <NavLink href="/dashboard">Dashboard</NavLink>
+          <NavLink href="/dashboard/prospects">Radar de prospectos</NavLink>
+          <NavLink href="/dashboard/prospects/import">Importar leads</NavLink>
+          <NavLink href="/dashboard/prospects">Diagnosticos</NavLink>
         </Nav>
       </Sidebar>
 
@@ -117,7 +142,7 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
             <span style={{ color: '#b5aea1' }}>Centro operativo</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <span style={{ color: '#8f887d', fontSize: '0.85rem' }}>{user?.name || 'Operador'}</span>
+            <span style={{ color: '#8f887d', fontSize: '0.85rem' }}>{account?.name || user?.name || 'Operador'}</span>
             <Button variant="secondary" onClick={logout}>
               <LogOut size={16} /> Salir
             </Button>

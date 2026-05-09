@@ -1,0 +1,59 @@
+# Prospects Experience Map
+
+## Rutas
+
+Privadas:
+
+- `/dashboard`
+- `/dashboard/prospects`
+- `/dashboard/prospects/import`
+- `/dashboard/prospects/[id]`
+
+Publica:
+
+- `/diagnosticos/[slug]`
+
+## Flujo privado
+
+1. El operador entra por login con `phone`.
+2. Pega JSON de Panalbee Providers en `/dashboard/prospects/import`.
+3. La UI valida localmente el JSON, detecta volumen, categoria dominante, ciudad dominante y señales básicas.
+4. El backend importa, deduplica y devuelve resumen por item.
+5. El operador trabaja el radar en `/dashboard/prospects` con métricas y filtros.
+6. Desde el radar entra a `/dashboard/prospects/[id]`.
+7. En el detalle puede:
+   - editar estado comercial
+   - guardar notas internas
+   - copiar prompt de investigación
+   - copiar mensaje base de WhatsApp
+   - pegar/editar diagnóstico
+   - guardar o publicar
+8. Si el diagnóstico tiene slug y contenido, se publica y puede verse en `/diagnosticos/[slug]`.
+
+## Flujo público
+
+1. El cliente abre `/diagnosticos/[slug]` sin autenticación.
+2. Ve una pieza pública premium con:
+   - hero de marca
+   - resumen ejecutivo
+   - señales positivas
+   - oportunidades principales
+   - scores públicos
+   - mapa recomendado
+   - mejora rápida
+   - sistema mínimo recomendado
+   - sandbox local de viabilidad
+
+## Reglas UX
+
+- Negro profundo, dorado sobrio, serif editorial, autoridad serena.
+- No lenguaje agresivo.
+- No decir que un negocio pierde clientes como hecho.
+- Usar oportunidad visible, orden, claridad, confianza y recorrido como ejes.
+- El radar debe sentirse como centro de mando, no tabla genérica.
+
+## Sandbox de viabilidad
+
+- Es local, sin persistencia backend por ahora.
+- Sirve para visualizar escenarios de mejora del negocio.
+- Debe mostrar disclaimer explícito de no promesa de resultados.

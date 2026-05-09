@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '@/stores/auth.store';
 
 export const http = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:7000/api',
   timeout: 12_000,
 });
 
