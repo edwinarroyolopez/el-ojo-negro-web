@@ -30,11 +30,24 @@ const Stage = styled.div`
   border: ${({ theme }) => theme.borders.subtle};
   background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.28));
   box-shadow: ${({ theme }) => theme.shadows.glow};
+  cursor: zoom-in;
 
   @media (max-width: 760px) {
     min-height: 240px;
-    border-radius: 24px;
+    min-width: 0;
+    border-radius: 22px;
   }
+`;
+
+const StageTouchArea = styled.button`
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: inherit;
 `;
 
 const StageImage = styled.img`
@@ -58,6 +71,39 @@ const StageActions = styled.div`
   inset: 1rem 1rem auto auto;
   display: flex;
   gap: 0.6rem;
+
+  @media (max-width: 760px) {
+    display: none;
+  }
+`;
+
+const MobileExpandHint = styled.div`
+  position: absolute;
+  inset: auto 0 0;
+  display: none;
+  justify-content: center;
+  padding: 0 0 1rem;
+  pointer-events: none;
+
+  @media (max-width: 760px) {
+    display: flex;
+  }
+`;
+
+const MobileExpandPill = styled.div`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  border-radius: 999px;
+  padding: 0.55rem 0.85rem;
+  background: rgba(8, 8, 8, 0.74);
+  border: 1px solid rgba(242, 237, 228, 0.18);
+  color: ${({ theme }) => theme.colors.text};
+  backdrop-filter: blur(10px);
+  font-size: ${({ theme }) => theme.typography.size.xs};
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 `;
 
 const GhostIconButton = styled.button`
@@ -87,6 +133,12 @@ const StageFooter = styled.div`
   border-radius: 24px;
   padding: 1rem 1.1rem;
   background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+
+  @media (max-width: 760px) {
+    gap: 0.75rem;
+    padding: 0.9rem;
+    border-radius: 20px;
+  }
 `;
 
 const Kicker = styled.small`
@@ -102,6 +154,11 @@ const Title = styled.h3`
   font-family: ${({ theme }) => theme.typography.fontSerif};
   font-size: clamp(1.8rem, 4vw, 3.4rem);
   line-height: 0.94;
+
+  @media (max-width: 760px) {
+    font-size: clamp(1.35rem, 8vw, 2rem);
+    line-height: 0.98;
+  }
 `;
 
 const Caption = styled.p`
@@ -109,6 +166,11 @@ const Caption = styled.p`
   color: ${({ theme }) => theme.colors.textMuted};
   line-height: 1.7;
   max-width: 64ch;
+
+  @media (max-width: 760px) {
+    font-size: ${({ theme }) => theme.typography.size.sm};
+    line-height: 1.6;
+  }
 `;
 
 const MetaRow = styled.div`
@@ -122,6 +184,36 @@ const MetaRow = styled.div`
 const Counter = styled.span`
   color: ${({ theme }) => theme.colors.textSoft};
   font-size: ${({ theme }) => theme.typography.size.sm};
+`;
+
+const FooterTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: center;
+
+  @media (min-width: 761px) {
+    display: none;
+  }
+`;
+
+const MobileExpandButton = styled.button`
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 42px;
+  border-radius: 999px;
+  padding: 0 0.95rem;
+  border: 1px solid rgba(205, 180, 124, 0.34);
+  background: rgba(205, 180, 124, 0.1);
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.typography.size.xs};
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 700;
+  cursor: pointer;
 `;
 
 const Rail = styled.div`
@@ -401,12 +493,12 @@ export function PublicDiagnosisGallery({ slides }: Props) {
     selectSlide(mod(activeIndex + direction, slides.length));
   }
 
-  function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+  function handleTouchStart(event: React.TouchEvent<HTMLElement>) {
     touchStartXRef.current = event.touches[0]?.clientX ?? null;
     touchDeltaXRef.current = 0;
   }
 
-  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+  function handleTouchMove(event: React.TouchEvent<HTMLElement>) {
     if (touchStartXRef.current === null) return;
     touchDeltaXRef.current = (event.touches[0]?.clientX ?? 0) - touchStartXRef.current;
   }
@@ -427,22 +519,24 @@ export function PublicDiagnosisGallery({ slides }: Props) {
       <Shell>
         <StageColumn>
           <Stage>
-            <div
-              style={{ width: '100%', height: '100%' }}
+            <StageTouchArea
+              type="button"
+              aria-label="Abrir slide en pantalla completa"
+              onClick={() => setIsFullscreenOpen(true)}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
             >
-            {imageFailed ? (
-              <Fallback>Imagen no disponible</Fallback>
-            ) : (
-              <StageImage
-                src={activeSlide.imageUrl}
-                alt={activeSlide.alt || activeSlide.title}
-                onError={() => setImageFailed(true)}
-              />
-            )}
-            </div>
+              {imageFailed ? (
+                <Fallback>Imagen no disponible</Fallback>
+              ) : (
+                <StageImage
+                  src={activeSlide.imageUrl}
+                  alt={activeSlide.alt || activeSlide.title}
+                  onError={() => setImageFailed(true)}
+                />
+              )}
+            </StageTouchArea>
 
             <StageActions>
               <GhostIconButton
@@ -453,9 +547,21 @@ export function PublicDiagnosisGallery({ slides }: Props) {
                 <Expand size={18} />
               </GhostIconButton>
             </StageActions>
+
+            <MobileExpandHint>
+              <MobileExpandPill>
+                <Expand size={14} /> Toca para ampliar
+              </MobileExpandPill>
+            </MobileExpandHint>
           </Stage>
 
           <StageFooter>
+            <FooterTop>
+              <Counter>{`${activeIndex + 1}/${slides.length}`}</Counter>
+              <MobileExpandButton type="button" onClick={() => setIsFullscreenOpen(true)}>
+                <Expand size={14} /> Ver en pantalla completa
+              </MobileExpandButton>
+            </FooterTop>
             <MetaRow>
               <div>
                 <Kicker>{`Slide ${activeIndex + 1} de ${slides.length}`}</Kicker>
