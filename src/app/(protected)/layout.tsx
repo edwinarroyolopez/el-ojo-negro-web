@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { PanelLeftClose, PanelLeftOpen, LayoutGrid, LogOut } from 'lucide-react';
@@ -62,15 +63,19 @@ const Nav = styled.nav`
   margin-top: 1rem;
 `;
 
-const NavLink = styled(Link)`
-  border: ${({ theme }) => theme.borders.subtle};
-  padding: 0.6rem 0.8rem;
-  border-radius: ${({ theme }) => theme.radius.md};
-  color: ${({ theme }) => theme.colors.textMuted};
+const NavLink = styled(Link)<{ $active: boolean }>`
+  border: ${({ theme, $active }) => ($active ? theme.borders.emphasized : theme.borders.subtle)};
+  padding: 0.75rem 0.9rem;
+  border-radius: ${({ theme }) => theme.radius.lg};
+  color: ${({ theme, $active }) => ($active ? theme.colors.text : theme.colors.textMuted)};
+  background: ${({ theme, $active }) => ($active ? `linear-gradient(135deg, ${theme.colors.accentMuted}, rgba(255, 255, 255, 0.05))` : 'rgba(255, 255, 255, 0.02)')};
+  box-shadow: ${({ theme, $active }) => ($active ? theme.shadows.glow : 'none')};
+  transition: border-color 180ms ease, color 180ms ease, background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 
   &:hover {
     border-color: ${({ theme }) => theme.colors.borderStrong};
     color: ${({ theme }) => theme.colors.text};
+    transform: translateY(-1px);
   }
 `;
 
@@ -87,8 +92,24 @@ const Screen = styled.div`
   color: ${({ theme }) => theme.colors.textMuted};
 `;
 
+const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Dashboard', exact: true },
+  { href: '/dashboard/prospects', label: 'Radar de prospectos', exact: true },
+  { href: '/dashboard/prospects/import', label: 'Importar leads', exact: true },
+  { href: '/dashboard/diagnostics', label: 'Diagnosticos', exact: true },
+] as const;
+
+function isNavItemActive(pathname: string, href: string, exact: boolean) {
+  if (exact) {
+    return pathname === href;
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function ProtectedLayout({ children }: { children: ReactNode }) {
   const { isReady } = useRequireAuth();
+  const pathname = usePathname();
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
@@ -125,10 +146,16 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
           Arquitecto de Percepcion
         </p>
         <Nav>
-          <NavLink href="/dashboard">Dashboard</NavLink>
-          <NavLink href="/dashboard/prospects">Radar de prospectos</NavLink>
-          <NavLink href="/dashboard/prospects/import">Importar leads</NavLink>
-          <NavLink href="/dashboard/prospects">Diagnosticos</NavLink>
+          {NAV_ITEMS.map((item) => (
+            <NavLink
+              key={item.href}
+              href={item.href}
+              $active={isNavItemActive(pathname, item.href, item.exact)}
+              aria-current={isNavItemActive(pathname, item.href, item.exact) ? 'page' : undefined}
+            >
+              {item.label}
+            </NavLink>
+          ))}
         </Nav>
       </Sidebar>
 
