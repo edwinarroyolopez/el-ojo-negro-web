@@ -180,7 +180,7 @@ export function getDiagnosisSlideDeck(
 export function mergeDiagnosisSlideDeckIntoStructured(
   existingStructured: Record<string, unknown> | undefined,
   deck: DiagnosisSlideDeck,
-) {
+): Record<string, unknown> {
   return {
     ...(existingStructured ?? {}),
     slideDeck: normalizeDiagnosisSlideDeck(deck),

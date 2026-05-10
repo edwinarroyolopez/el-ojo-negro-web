@@ -27,12 +27,15 @@ import { buildSlidesGenerationPrompt } from '../utils/slides-prompt.utils';
 import { CopyPromptPanel } from './CopyPromptPanel';
 import { DiagnosisDeckModal } from './DiagnosisDeckModal';
 import { DiagnosisDeckSummaryCard } from './DiagnosisDeckSummaryCard';
+import { DiagnosisSeoModal } from './DiagnosisSeoModal';
+import { DiagnosisSeoSummaryCard } from './DiagnosisSeoSummaryCard';
 import { DiagnosisEditor } from './DiagnosisEditor';
 import { DiagnosisPreview } from './DiagnosisPreview';
 import { CommercialNorthModal } from './CommercialNorthModal';
 import { OutreachScriptModal } from './OutreachScriptModal';
 import { ProspectPriorityBadge, ProspectStatusBadge } from './ProspectStatusBadge';
 import { getDiagnosisSlideDeck, mergeDiagnosisSlideDeckIntoStructured } from '../utils/diagnosis-slide-deck.utils';
+import { getDiagnosisSeo, mergeDiagnosisSeoIntoStructured } from '../utils/diagnosis-seo.utils';
 
 const Page = styled.div`
   display: grid;
@@ -231,11 +234,13 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
   const [isCommercialNorthOpen, setIsCommercialNorthOpen] = useState(false);
   const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
+  const [isSeoModalOpen, setIsSeoModalOpen] = useState(false);
   const [diagnosisJson, setDiagnosisJson] = useState(() =>
     diagnosisToGeneratedJson(prospect.diagnosis),
   );
   const diagnosisValidation = validateGeneratedDiagnosisJson(diagnosisJson);
   const deck = getDiagnosisSlideDeck(prospect.diagnosis, prospect.name);
+  const seo = getDiagnosisSeo(prospect.diagnosis, prospect.name);
 
   const updateProspectMutation = useMutation({
     mutationFn: (payload: Parameters<typeof prospectsService.updateProspect>[1]) => prospectsService.updateProspect(id, payload),
@@ -336,6 +341,37 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
     },
     onError: () => {
       toast.error('No fue posible guardar el deck visual');
+    },
+  });
+
+  const saveSeoMutation = useMutation({
+    mutationFn: async (nextSeo: ReturnType<typeof getDiagnosisSeo>) => {
+      const baseDiagnosis = diagnosisValidation.payload
+        ? { ...prospect.diagnosis, ...diagnosisValidation.payload }
+        : prospect.diagnosis;
+
+      return prospectsService.updateDiagnosis(id, {
+        title: baseDiagnosis.title,
+        slug: baseDiagnosis.slug,
+        visibility: baseDiagnosis.visibility,
+        status: baseDiagnosis.status,
+        markdown: baseDiagnosis.markdown,
+        structured: mergeDiagnosisSeoIntoStructured(baseDiagnosis.structured, nextSeo),
+        summary: baseDiagnosis.summary,
+        scores: baseDiagnosis.scores,
+        publicNotes: baseDiagnosis.publicNotes,
+      });
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['prospects', 'detail', id] }),
+        queryClient.invalidateQueries({ queryKey: ['prospects', 'list'] }),
+      ]);
+      toast.success('SEO del diagnóstico guardado');
+      setIsSeoModalOpen(false);
+    },
+    onError: () => {
+      toast.error('No fue posible guardar el SEO');
     },
   });
 
@@ -582,6 +618,7 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
             diagnosisStatus={prospect.diagnosis.status}
             onEdit={() => setIsDeckModalOpen(true)}
           />
+          <DiagnosisSeoSummaryCard seo={seo} onEdit={() => setIsSeoModalOpen(true)} />
           <Card>
             <DiagnosisEditor
               value={diagnosisJson}
@@ -644,6 +681,24 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
           isSaving={saveDeckMutation.isPending}
           onClose={() => setIsDeckModalOpen(false)}
           onSave={(nextDeck) => saveDeckMutation.mutateAsync(nextDeck)}
+        />
+      ) : null}
+
+      {isSeoModalOpen ? (
+        <DiagnosisSeoModal
+          open={isSeoModalOpen}
+          prospect={prospect}
+          diagnosis={
+            diagnosisValidation.payload
+              ? {
+                  ...prospect.diagnosis,
+                  ...diagnosisValidation.payload,
+                }
+              : prospect.diagnosis
+          }
+          isSaving={saveSeoMutation.isPending}
+          onClose={() => setIsSeoModalOpen(false)}
+          onSave={(nextSeo) => saveSeoMutation.mutateAsync(nextSeo)}
         />
       ) : null}
     </Page>
