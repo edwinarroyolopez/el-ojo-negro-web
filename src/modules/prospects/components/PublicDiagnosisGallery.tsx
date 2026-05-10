@@ -377,6 +377,8 @@ const NavButton = styled.button`
 `;
 
 const MobileNavLeft = styled(NavButton)`
+  display: none;
+
   @media (max-width: 760px) {
     border-radius: 16px;
 
@@ -392,6 +394,8 @@ const MobileNavLeft = styled(NavButton)`
 `;
 
 const MobileNavRight = styled(NavButton)`
+  display: none;
+
   @media (max-width: 760px) {
     border-radius: 16px;
 
