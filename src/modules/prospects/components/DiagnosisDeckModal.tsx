@@ -68,6 +68,7 @@ const Body = styled.div`
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-right: 0.25rem;
+  padding-bottom: 1rem;
 
   @media (max-width: 900px) {
     padding-right: 0;
@@ -79,6 +80,14 @@ const Header = styled.div`
   justify-content: space-between;
   gap: 1rem;
   align-items: start;
+
+  @media (max-width: 900px) {
+    align-items: flex-start;
+  }
+`;
+
+const HeaderContent = styled.div`
+  min-width: 0;
 `;
 
 const Kicker = styled.p`
@@ -301,19 +310,29 @@ const Toggle = styled.label`
 `;
 
 const Footer = styled.div`
-  display: flex;
-  justify-content: space-between;
+   position: sticky;
+   bottom: 0;
+   display: flex;
+   justify-content: space-between;
    gap: 0.75rem;
    align-items: center;
    margin-top: 1rem;
    flex-wrap: wrap;
    padding-top: 1rem;
+   padding-bottom: 0.35rem;
+   margin-inline: -1.1rem;
+   padding-inline: 1.1rem;
    border-top: ${({ theme }) => theme.borders.subtle};
-   background: linear-gradient(180deg, rgba(9,9,9,0), rgba(9,9,9,0.96) 18%);
+   background:
+     linear-gradient(180deg, rgba(9,9,9,0), rgba(9,9,9,0.88) 16%, rgba(9,9,9,0.98) 32%),
+     rgba(9,9,9,0.98);
+   box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.28);
+   z-index: 2;
 
-   @media (max-width: 900px) {
-     align-items: stretch;
-   }
+    @media (max-width: 900px) {
+      align-items: stretch;
+      padding-bottom: 0;
+    }
 `;
 
 const FooterActions = styled.div`
@@ -323,9 +342,16 @@ const FooterActions = styled.div`
 
   @media (max-width: 900px) {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     width: 100%;
   }
+`;
+
+const FooterStatus = styled.div`
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: ${({ theme }) => theme.typography.size.sm};
+  font-weight: ${({ theme }) => theme.typography.weight.medium};
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
 `;
 
 function moveSlide(slides: DiagnosisSlideAsset[], index: number, direction: -1 | 1) {
@@ -479,21 +505,22 @@ export function DiagnosisDeckModal({
       <Shell $open={open} role="dialog" aria-modal="true" aria-label="Editor del deck visual del diagnostico">
         <Container>
           <Header>
-            <div>
+            <HeaderContent>
               <Kicker>Deck publico del diagnostico</Kicker>
               <Title>Cabina de edicion visual</Title>
               <Lead>
                 Carga, ordena y ajusta las 4 imagenes que se publican junto al diagnostico, sin tocar el flujo actual del editor JSON.
               </Lead>
-              <StatusBand>
-                <Metric>{`${visibleCount}/4 visibles`}</Metric>
-                <Metric>{draft.status === 'READY' ? 'Deck listo: 4 slides visibles' : draft.status}</Metric>
-              </StatusBand>
-            </div>
+            </HeaderContent>
             <Button variant="ghost" onClick={handleAttemptClose} aria-label="Cerrar editor del deck visual">
               <X size={16} /> Cerrar
             </Button>
           </Header>
+
+          <StatusBand>
+            <Metric>{`${visibleCount}/4 visibles`}</Metric>
+            <Metric>{draft.status === 'READY' ? 'Deck listo: 4 slides visibles' : draft.status}</Metric>
+          </StatusBand>
 
           <Body data-testid="diagnosis-deck-modal-body">
             <Layout>
@@ -685,7 +712,7 @@ export function DiagnosisDeckModal({
           </Body>
 
           <Footer data-testid="diagnosis-deck-modal-footer">
-            <Lead style={{ margin: 0 }}>{`${visibleCount}/4 visibles · ${draft.status}`}</Lead>
+            <FooterStatus>{`${visibleCount}/4 visibles · ${draft.status}`}</FooterStatus>
             <FooterActions>
               <Button variant="ghost" onClick={handleAttemptClose} disabled={isSaving}>
                 Cancelar
