@@ -547,6 +547,10 @@ function mod(value: number, length: number) {
   return (value + length) % length;
 }
 
+function getEditorialSlideTitle(title: string) {
+  return title.replace(/^slide\s*\d+\s*[-:|]\s*/i, '').trim();
+}
+
 export function PublicDiagnosisGallery({ slides }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [imageFailed, setImageFailed] = useState(false);
@@ -583,6 +587,7 @@ export function PublicDiagnosisGallery({ slides }: Props) {
   }
 
   const activeSlide = slides[Math.min(activeIndex, slides.length - 1)];
+  const editorialTitle = getEditorialSlideTitle(activeSlide.title);
 
   function selectSlide(index: number) {
     setActiveIndex(index);
@@ -751,7 +756,7 @@ export function PublicDiagnosisGallery({ slides }: Props) {
 
           <FullscreenFooter>
             <FullscreenInfoBand>
-              <Title>{activeSlide.title}</Title>
+              <Title>{editorialTitle}</Title>
               {activeSlide.caption ? <Caption>{activeSlide.caption}</Caption> : null}
             </FullscreenInfoBand>
           </FullscreenFooter>
