@@ -18,7 +18,7 @@ const Shell = styled.section`
 
 const StageColumn = styled.div`
   display: grid;
-  gap: 0.85rem;
+  gap: 0.9rem;
 `;
 
 const Stage = styled.div`
@@ -33,9 +33,9 @@ const Stage = styled.div`
   cursor: zoom-in;
 
   @media (max-width: 760px) {
-    min-height: 240px;
+    min-height: 260px;
     min-width: 0;
-    border-radius: 22px;
+    border-radius: 26px;
   }
 `;
 
@@ -81,8 +81,8 @@ const MobileExpandHint = styled.div`
   position: absolute;
   inset: auto 0 0;
   display: none;
-  justify-content: center;
-  padding: 0 0 1rem;
+  justify-content: flex-start;
+  padding: 0 0.9rem 0.9rem;
   pointer-events: none;
 
   @media (max-width: 760px) {
@@ -93,17 +93,18 @@ const MobileExpandHint = styled.div`
 const MobileExpandPill = styled.div`
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  min-height: 38px;
+  gap: 0.5rem;
+  min-height: 40px;
   border-radius: 999px;
-  padding: 0.55rem 0.85rem;
-  background: rgba(8, 8, 8, 0.74);
-  border: 1px solid rgba(242, 237, 228, 0.18);
+  padding: 0.62rem 0.92rem;
+  background: rgba(8, 8, 8, 0.72);
+  border: 1px solid rgba(205, 180, 124, 0.2);
   color: ${({ theme }) => theme.colors.text};
   backdrop-filter: blur(10px);
   font-size: ${({ theme }) => theme.typography.size.xs};
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.26);
 `;
 
 const GhostIconButton = styled.button`
@@ -128,16 +129,19 @@ const GhostIconButton = styled.button`
 
 const StageFooter = styled.div`
   display: grid;
-  gap: 0.65rem;
+  gap: 0.75rem;
   border: ${({ theme }) => theme.borders.subtle};
-  border-radius: 24px;
-  padding: 1rem 1.1rem;
-  background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border-radius: 28px;
+  padding: 1.15rem 1.2rem 1.25rem;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(205,180,124,0.08), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
 
   @media (max-width: 760px) {
-    gap: 0.75rem;
-    padding: 0.9rem;
-    border-radius: 20px;
+    gap: 0.6rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
   }
 `;
 
@@ -156,7 +160,7 @@ const Title = styled.h3`
   line-height: 0.94;
 
   @media (max-width: 760px) {
-    font-size: clamp(1.35rem, 8vw, 2rem);
+    font-size: clamp(1.7rem, 8.4vw, 2.4rem);
     line-height: 0.98;
   }
 `;
@@ -168,8 +172,7 @@ const Caption = styled.p`
   max-width: 64ch;
 
   @media (max-width: 760px) {
-    font-size: ${({ theme }) => theme.typography.size.sm};
-    line-height: 1.6;
+    display: none;
   }
 `;
 
@@ -179,6 +182,11 @@ const MetaRow = styled.div`
   gap: 1rem;
   align-items: end;
   flex-wrap: wrap;
+
+  @media (max-width: 760px) {
+    display: grid;
+    gap: 0.5rem;
+  }
 `;
 
 const Counter = styled.span`
@@ -197,23 +205,16 @@ const FooterTop = styled.div`
   }
 `;
 
-const MobileExpandButton = styled.button`
-  appearance: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  min-height: 42px;
-  border-radius: 999px;
-  padding: 0 0.95rem;
-  border: 1px solid rgba(205, 180, 124, 0.34);
-  background: rgba(205, 180, 124, 0.1);
-  color: ${({ theme }) => theme.colors.text};
-  font-size: ${({ theme }) => theme.typography.size.xs};
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-weight: 700;
-  cursor: pointer;
+const MobileCaption = styled.p`
+  display: none;
+
+  @media (max-width: 760px) {
+    display: block;
+    margin: 0;
+    color: ${({ theme }) => theme.colors.textMuted};
+    font-size: ${({ theme }) => theme.typography.size.sm};
+    line-height: 1.55;
+  }
 `;
 
 const Rail = styled.div`
@@ -222,9 +223,10 @@ const Rail = styled.div`
 
   @media (max-width: 1120px) {
     grid-auto-flow: column;
-    grid-auto-columns: minmax(220px, 72%);
+    grid-auto-columns: minmax(112px, 32%);
     overflow-x: auto;
     scrollbar-width: none;
+    padding-top: 0.25rem;
 
     &::-webkit-scrollbar {
       display: none;
@@ -254,6 +256,8 @@ const ThumbButton = styled.button<{ $active: boolean }>`
 
   @media (max-width: 1120px) {
     grid-template-columns: 1fr;
+    padding: 0.45rem;
+    border-radius: 18px;
   }
 `;
 
@@ -288,6 +292,10 @@ const ThumbMeta = styled.div`
     font-size: ${({ theme }) => theme.typography.size.xs};
     line-height: 1.5;
   }
+
+  @media (max-width: 1120px) {
+    display: none;
+  }
 `;
 
 const FullscreenOverlay = styled.div<{ $open: boolean }>`
@@ -310,13 +318,6 @@ const FullscreenShell = styled.div`
   gap: 0.85rem;
   width: min(1440px, 100%);
   margin: 0 auto;
-`;
-
-const FullscreenHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: start;
 `;
 
 const FullscreenStageWrap = styled.div`
@@ -377,6 +378,8 @@ const NavButton = styled.button`
 
 const MobileNavLeft = styled(NavButton)`
   @media (max-width: 760px) {
+    border-radius: 16px;
+
     display: inline-flex;
     width: 48px;
     height: 48px;
@@ -390,6 +393,8 @@ const MobileNavLeft = styled(NavButton)`
 
 const MobileNavRight = styled(NavButton)`
   @media (max-width: 760px) {
+    border-radius: 16px;
+
     display: inline-flex;
     width: 48px;
     height: 48px;
@@ -404,6 +409,44 @@ const MobileNavRight = styled(NavButton)`
 const FullscreenFooter = styled.div`
   display: grid;
   gap: 0.85rem;
+`;
+
+const FullscreenTopbar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+`;
+
+const FullscreenCounter = styled.div`
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  border: ${({ theme }) => theme.borders.subtle};
+  background: rgba(255,255,255,0.03);
+  color: ${({ theme }) => theme.colors.accent};
+  font-size: ${({ theme }) => theme.typography.size.xs};
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+`;
+
+const FullscreenInfoBand = styled.div`
+  display: grid;
+  gap: 0.4rem;
+  width: min(760px, 100%);
+  margin: 0 auto;
+  text-align: center;
+
+  ${Title} {
+    font-size: clamp(1.6rem, 4vw, 3rem);
+  }
+
+  ${Caption} {
+    display: block;
+    margin-inline: auto;
+  }
 `;
 
 const FullscreenThumbRail = styled.div`
@@ -558,9 +601,7 @@ export function PublicDiagnosisGallery({ slides }: Props) {
           <StageFooter>
             <FooterTop>
               <Counter>{`${activeIndex + 1}/${slides.length}`}</Counter>
-              <MobileExpandButton type="button" onClick={() => setIsFullscreenOpen(true)}>
-                <Expand size={14} /> Ver en pantalla completa
-              </MobileExpandButton>
+              <Kicker>Vision editorial</Kicker>
             </FooterTop>
             <MetaRow>
               <div>
@@ -570,6 +611,7 @@ export function PublicDiagnosisGallery({ slides }: Props) {
               <Counter>{`${activeIndex + 1}/${slides.length}`}</Counter>
             </MetaRow>
             {activeSlide.caption ? <Caption>{activeSlide.caption}</Caption> : null}
+            {activeSlide.caption ? <MobileCaption>{activeSlide.caption}</MobileCaption> : null}
           </StageFooter>
         </StageColumn>
 
@@ -610,16 +652,12 @@ export function PublicDiagnosisGallery({ slides }: Props) {
         }}
       >
         <FullscreenShell>
-          <FullscreenHeader>
-            <div>
-              <Kicker>{`Vision editorial ${activeIndex + 1}/${slides.length}`}</Kicker>
-              <Title>{activeSlide.title}</Title>
-              {activeSlide.caption ? <Caption>{activeSlide.caption}</Caption> : null}
-            </div>
+          <FullscreenTopbar>
+            <FullscreenCounter>{`Vision editorial ${activeIndex + 1}/${slides.length}`}</FullscreenCounter>
             <Button variant="ghost" onClick={() => setIsFullscreenOpen(false)}>
               <X size={16} /> Cerrar
             </Button>
-          </FullscreenHeader>
+          </FullscreenTopbar>
 
           <FullscreenStageWrap>
             <NavButton type="button" onClick={() => move(-1)} aria-label="Imagen anterior">
@@ -656,6 +694,10 @@ export function PublicDiagnosisGallery({ slides }: Props) {
           </FullscreenStageWrap>
 
           <FullscreenFooter>
+            <FullscreenInfoBand>
+              <Title>{activeSlide.title}</Title>
+              {activeSlide.caption ? <Caption>{activeSlide.caption}</Caption> : null}
+            </FullscreenInfoBand>
             <FullscreenThumbRail>
               {slides.map((slide, index) => (
                 <FullscreenThumb
