@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
 import type { DiagnosisSlideAsset } from '../types';
 
 const Shell = styled.section`
@@ -9,9 +11,14 @@ const Shell = styled.section`
   gap: 1rem;
 
   @media (min-width: 1120px) {
-    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.58fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.62fr);
     align-items: start;
   }
+`;
+
+const StageColumn = styled.div`
+  display: grid;
+  gap: 0.85rem;
 `;
 
 const Stage = styled.div`
@@ -19,9 +26,10 @@ const Stage = styled.div`
   min-height: 340px;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 28px;
+  border-radius: 30px;
   border: ${({ theme }) => theme.borders.subtle};
-  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.24));
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(0,0,0,0.28));
+  box-shadow: ${({ theme }) => theme.shadows.glow};
 
   @media (max-width: 760px) {
     min-height: 240px;
@@ -45,11 +53,40 @@ const Fallback = styled.div`
   background: radial-gradient(circle at 50% 0%, rgba(205,180,124,0.16), transparent 42%), #111;
 `;
 
-const Overlay = styled.div`
+const StageActions = styled.div`
   position: absolute;
-  inset: auto 0 0;
-  padding: clamp(1rem, 3vw, 2rem);
-  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.88));
+  inset: 1rem 1rem auto auto;
+  display: flex;
+  gap: 0.6rem;
+`;
+
+const GhostIconButton = styled.button`
+  appearance: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: ${({ theme }) => theme.borders.subtle};
+  background: rgba(8, 8, 8, 0.58);
+  color: ${({ theme }) => theme.colors.text};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.borderStrong};
+    background: rgba(18, 18, 18, 0.8);
+  }
+`;
+
+const StageFooter = styled.div`
+  display: grid;
+  gap: 0.65rem;
+  border: ${({ theme }) => theme.borders.subtle};
+  border-radius: 24px;
+  padding: 1rem 1.1rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
 `;
 
 const Kicker = styled.small`
@@ -61,17 +98,30 @@ const Kicker = styled.small`
 `;
 
 const Title = styled.h3`
-  margin: 0.65rem 0 0;
+  margin: 0;
   font-family: ${({ theme }) => theme.typography.fontSerif};
-  font-size: clamp(2rem, 5vw, 4.6rem);
-  line-height: 0.92;
+  font-size: clamp(1.8rem, 4vw, 3.4rem);
+  line-height: 0.94;
 `;
 
 const Caption = styled.p`
-  margin: 0.75rem 0 0;
+  margin: 0;
   color: ${({ theme }) => theme.colors.textMuted};
   line-height: 1.7;
   max-width: 64ch;
+`;
+
+const MetaRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  flex-wrap: wrap;
+`;
+
+const Counter = styled.span`
+  color: ${({ theme }) => theme.colors.textSoft};
+  font-size: ${({ theme }) => theme.typography.size.sm};
 `;
 
 const Rail = styled.div`
@@ -94,10 +144,10 @@ const ThumbButton = styled.button<{ $active: boolean }>`
   appearance: none;
   text-align: left;
   border-radius: 22px;
-  padding: 0.75rem;
+  padding: 0.85rem;
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 0.8rem;
   background: ${({ $active }) => ($active ? 'rgba(205, 180, 124, 0.08)' : 'rgba(255,255,255,0.03)')};
   border: 1px solid
     ${({ theme, $active }) => ($active ? 'rgba(205, 180, 124, 0.44)' : theme.colors.border)};
@@ -136,6 +186,7 @@ const ThumbMeta = styled.div`
   strong {
     display: block;
     line-height: 1.25;
+    font-size: 1rem;
   }
 
   span {
@@ -147,13 +198,192 @@ const ThumbMeta = styled.div`
   }
 `;
 
+const FullscreenOverlay = styled.div<{ $open: boolean }>`
+  position: fixed;
+  inset: 0;
+  display: ${({ $open }) => ($open ? 'grid' : 'none')};
+  background: rgba(4, 4, 4, 0.94);
+  backdrop-filter: blur(14px);
+  z-index: ${({ theme }) => theme.zIndex.modal + 10};
+  padding: 1rem;
+
+  @media (max-width: 760px) {
+    padding: 0.75rem;
+  }
+`;
+
+const FullscreenShell = styled.div`
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  width: min(1440px, 100%);
+  margin: 0 auto;
+`;
+
+const FullscreenHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: start;
+`;
+
+const FullscreenStageWrap = styled.div`
+  min-height: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+
+  @media (max-width: 760px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const FullscreenStage = styled.div`
+  min-height: 0;
+  height: min(72vh, 920px);
+  border-radius: 28px;
+  overflow: hidden;
+  border: ${({ theme }) => theme.borders.subtle};
+  background: #0f0f0f;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  @media (max-width: 760px) {
+    height: min(56vh, 620px);
+    border-radius: 22px;
+  }
+`;
+
+const NavButton = styled.button`
+  appearance: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 999px;
+  border: ${({ theme }) => theme.borders.subtle};
+  background: rgba(255,255,255,0.04);
+  color: ${({ theme }) => theme.colors.text};
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.borderStrong};
+    background: rgba(255,255,255,0.08);
+  }
+
+  @media (max-width: 760px) {
+    display: none;
+  }
+`;
+
+const MobileNavLeft = styled(NavButton)`
+  @media (max-width: 760px) {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    left: 1rem;
+  }
+`;
+
+const MobileNavRight = styled(NavButton)`
+  @media (max-width: 760px) {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    right: 1rem;
+  }
+`;
+
+const FullscreenFooter = styled.div`
+  display: grid;
+  gap: 0.85rem;
+`;
+
+const FullscreenThumbRail = styled.div`
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(140px, 180px);
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const FullscreenThumb = styled.button<{ $active: boolean }>`
+  appearance: none;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid
+    ${({ theme, $active }) => ($active ? 'rgba(205, 180, 124, 0.44)' : theme.colors.border)};
+  padding: 0;
+  background: ${({ $active }) => ($active ? 'rgba(205, 180, 124, 0.1)' : 'rgba(255,255,255,0.03)')};
+  cursor: pointer;
+
+  img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+  }
+`;
+
 type Props = {
   slides: DiagnosisSlideAsset[];
 };
 
+function mod(value: number, length: number) {
+  return (value + length) % length;
+}
+
 export function PublicDiagnosisGallery({ slides }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [imageFailed, setImageFailed] = useState(false);
+  const [fullscreenFailed, setFullscreenFailed] = useState(false);
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
+  const touchStartXRef = useRef<number | null>(null);
+  const touchDeltaXRef = useRef(0);
+
+  useEffect(() => {
+    if (!isFullscreenOpen) return;
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setIsFullscreenOpen(false);
+      }
+
+      if (event.key === 'ArrowRight') {
+        setActiveIndex((current) => mod(current + 1, slides.length));
+        setFullscreenFailed(false);
+      }
+
+      if (event.key === 'ArrowLeft') {
+        setActiveIndex((current) => mod(current - 1, slides.length));
+        setFullscreenFailed(false);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFullscreenOpen, slides.length]);
 
   if (!slides.length) {
     return null;
@@ -161,50 +391,181 @@ export function PublicDiagnosisGallery({ slides }: Props) {
 
   const activeSlide = slides[Math.min(activeIndex, slides.length - 1)];
 
-  return (
-    <Shell>
-      <Stage>
-        {imageFailed ? (
-          <Fallback>Imagen no disponible</Fallback>
-        ) : (
-          <StageImage
-            src={activeSlide.imageUrl}
-            alt={activeSlide.alt || activeSlide.title}
-            onError={() => setImageFailed(true)}
-          />
-        )}
-        <Overlay>
-          <Kicker>{`${activeIndex + 1}/${slides.length}`}</Kicker>
-          <Title>{activeSlide.title}</Title>
-          {activeSlide.caption ? <Caption>{activeSlide.caption}</Caption> : null}
-        </Overlay>
-      </Stage>
+  function selectSlide(index: number) {
+    setActiveIndex(index);
+    setImageFailed(false);
+    setFullscreenFailed(false);
+  }
 
-      <Rail>
-        {slides.map((slide, index) => (
-          <ThumbButton
-            key={slide.id}
-            type="button"
-            $active={index === activeIndex}
-            onClick={() => {
-              setActiveIndex(index);
-              setImageFailed(false);
-            }}
-          >
-            <ThumbVisual>
-              {slide.thumbnailUrl || slide.imageUrl ? (
-                <img src={slide.thumbnailUrl || slide.imageUrl} alt={slide.alt || slide.title} />
-              ) : (
-                <Fallback>Preview</Fallback>
-              )}
-            </ThumbVisual>
-            <ThumbMeta>
-              <strong>{slide.title}</strong>
-              <span>{slide.caption || 'Slide del diagnostico publico.'}</span>
-            </ThumbMeta>
-          </ThumbButton>
-        ))}
-      </Rail>
-    </Shell>
+  function move(direction: -1 | 1) {
+    selectSlide(mod(activeIndex + direction, slides.length));
+  }
+
+  function handleTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+    touchStartXRef.current = event.touches[0]?.clientX ?? null;
+    touchDeltaXRef.current = 0;
+  }
+
+  function handleTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+    if (touchStartXRef.current === null) return;
+    touchDeltaXRef.current = (event.touches[0]?.clientX ?? 0) - touchStartXRef.current;
+  }
+
+  function handleTouchEnd() {
+    if (touchStartXRef.current === null) return;
+
+    if (Math.abs(touchDeltaXRef.current) > 56) {
+      move(touchDeltaXRef.current < 0 ? 1 : -1);
+    }
+
+    touchStartXRef.current = null;
+    touchDeltaXRef.current = 0;
+  }
+
+  return (
+    <>
+      <Shell>
+        <StageColumn>
+          <Stage>
+            <div
+              style={{ width: '100%', height: '100%' }}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+            {imageFailed ? (
+              <Fallback>Imagen no disponible</Fallback>
+            ) : (
+              <StageImage
+                src={activeSlide.imageUrl}
+                alt={activeSlide.alt || activeSlide.title}
+                onError={() => setImageFailed(true)}
+              />
+            )}
+            </div>
+
+            <StageActions>
+              <GhostIconButton
+                type="button"
+                onClick={() => setIsFullscreenOpen(true)}
+                aria-label="Ver imagen en pantalla completa"
+              >
+                <Expand size={18} />
+              </GhostIconButton>
+            </StageActions>
+          </Stage>
+
+          <StageFooter>
+            <MetaRow>
+              <div>
+                <Kicker>{`Slide ${activeIndex + 1} de ${slides.length}`}</Kicker>
+                <Title>{activeSlide.title}</Title>
+              </div>
+              <Counter>{`${activeIndex + 1}/${slides.length}`}</Counter>
+            </MetaRow>
+            {activeSlide.caption ? <Caption>{activeSlide.caption}</Caption> : null}
+          </StageFooter>
+        </StageColumn>
+
+        <Rail>
+          {slides.map((slide, index) => (
+            <ThumbButton
+              key={slide.id}
+              type="button"
+              $active={index === activeIndex}
+              onClick={() => selectSlide(index)}
+              aria-label={slide.title}
+            >
+              <ThumbVisual>
+                {slide.thumbnailUrl || slide.imageUrl ? (
+                  <img src={slide.thumbnailUrl || slide.imageUrl} alt={slide.alt || slide.title} />
+                ) : (
+                  <Fallback>Preview</Fallback>
+                )}
+              </ThumbVisual>
+              <ThumbMeta>
+                <strong>{slide.title}</strong>
+                <span>{slide.caption || 'Slide del diagnostico publico.'}</span>
+              </ThumbMeta>
+            </ThumbButton>
+          ))}
+        </Rail>
+      </Shell>
+
+      <FullscreenOverlay
+        $open={isFullscreenOpen}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Galeria en pantalla completa"
+        onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            setIsFullscreenOpen(false);
+          }
+        }}
+      >
+        <FullscreenShell>
+          <FullscreenHeader>
+            <div>
+              <Kicker>{`Vision editorial ${activeIndex + 1}/${slides.length}`}</Kicker>
+              <Title>{activeSlide.title}</Title>
+              {activeSlide.caption ? <Caption>{activeSlide.caption}</Caption> : null}
+            </div>
+            <Button variant="ghost" onClick={() => setIsFullscreenOpen(false)}>
+              <X size={16} /> Cerrar
+            </Button>
+          </FullscreenHeader>
+
+          <FullscreenStageWrap>
+            <NavButton type="button" onClick={() => move(-1)} aria-label="Imagen anterior">
+              <ChevronLeft size={20} />
+            </NavButton>
+
+            <div style={{ position: 'relative', minHeight: 0 }}>
+              <MobileNavLeft type="button" onClick={() => move(-1)} aria-label="Imagen anterior en mobile">
+                <ChevronLeft size={20} />
+              </MobileNavLeft>
+              <FullscreenStage
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                {fullscreenFailed ? (
+                  <Fallback>Imagen no disponible</Fallback>
+                ) : (
+                  <img
+                    src={activeSlide.imageUrl}
+                    alt={activeSlide.alt || activeSlide.title}
+                    onError={() => setFullscreenFailed(true)}
+                  />
+                )}
+              </FullscreenStage>
+              <MobileNavRight type="button" onClick={() => move(1)} aria-label="Imagen siguiente en mobile">
+                <ChevronRight size={20} />
+              </MobileNavRight>
+            </div>
+
+            <NavButton type="button" onClick={() => move(1)} aria-label="Imagen siguiente">
+              <ChevronRight size={20} />
+            </NavButton>
+          </FullscreenStageWrap>
+
+          <FullscreenFooter>
+            <FullscreenThumbRail>
+              {slides.map((slide, index) => (
+                <FullscreenThumb
+                  key={`fullscreen-${slide.id}`}
+                  type="button"
+                  $active={index === activeIndex}
+                  onClick={() => selectSlide(index)}
+                  aria-label={`Abrir ${slide.title}`}
+                >
+                  <img src={slide.thumbnailUrl || slide.imageUrl} alt={slide.alt || slide.title} />
+                </FullscreenThumb>
+              ))}
+            </FullscreenThumbRail>
+          </FullscreenFooter>
+        </FullscreenShell>
+      </FullscreenOverlay>
+    </>
   );
 }
