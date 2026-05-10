@@ -352,6 +352,10 @@ const FullscreenStage = styled.div`
     height: min(72vh, 860px);
     border-radius: 22px;
   }
+
+  @media (max-height: 620px) {
+    height: min(88vh, 1120px);
+  }
 `;
 
 const NavButton = styled.button`
@@ -424,6 +428,11 @@ const FullscreenFooter = styled.div`
   @media (max-width: 760px) {
     padding-bottom: 0.35rem;
   }
+
+  @media (max-height: 620px) {
+    gap: 0.12rem;
+    padding-bottom: 0.1rem;
+  }
 `;
 
 const QuietCloseButton = styled.button`
@@ -473,6 +482,11 @@ const FullscreenCounter = styled.div`
     left: 0.6rem;
     font-size: 0.68rem;
   }
+
+  @media (max-height: 620px) {
+    top: 0.45rem;
+    left: 0.5rem;
+  }
 `;
 
 const FullscreenInfoBand = styled.div`
@@ -509,41 +523,19 @@ const FullscreenInfoBand = styled.div`
       line-height: 1.45;
     }
   }
-`;
 
-const FullscreenThumbRail = styled.div`
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(120px, 152px);
-  gap: 0.6rem;
-  overflow-x: auto;
-  padding-bottom: 0.25rem;
-  scrollbar-width: none;
+  @media (max-height: 620px) {
+    width: min(640px, 100%);
+    gap: 0.05rem;
+    transform: translateY(-0.02rem);
 
-  &::-webkit-scrollbar {
-    display: none;
-  }
+    ${Title} {
+      font-size: clamp(0.88rem, 2vw, 1.02rem);
+    }
 
-  @media (max-width: 760px) {
-    display: none;
-  }
-`;
-
-const FullscreenThumb = styled.button<{ $active: boolean }>`
-  appearance: none;
-  border-radius: 18px;
-  overflow: hidden;
-  border: 1px solid
-    ${({ theme, $active }) => ($active ? 'rgba(205, 180, 124, 0.44)' : theme.colors.border)};
-  padding: 0;
-  background: ${({ $active }) => ($active ? 'rgba(205, 180, 124, 0.1)' : 'rgba(255,255,255,0.03)')};
-  cursor: pointer;
-
-  img {
-    display: block;
-    width: 100%;
-    aspect-ratio: 16 / 10;
-    object-fit: cover;
+    ${Caption} {
+      display: none;
+    }
   }
 `;
 
@@ -762,19 +754,6 @@ export function PublicDiagnosisGallery({ slides }: Props) {
               <Title>{activeSlide.title}</Title>
               {activeSlide.caption ? <Caption>{activeSlide.caption}</Caption> : null}
             </FullscreenInfoBand>
-            <FullscreenThumbRail>
-              {slides.map((slide, index) => (
-                <FullscreenThumb
-                  key={`fullscreen-${slide.id}`}
-                  type="button"
-                  $active={index === activeIndex}
-                  onClick={() => selectSlide(index)}
-                  aria-label={`Abrir ${slide.title}`}
-                >
-                  <img src={slide.thumbnailUrl || slide.imageUrl} alt={slide.alt || slide.title} />
-                </FullscreenThumb>
-              ))}
-            </FullscreenThumbRail>
           </FullscreenFooter>
         </FullscreenShell>
       </FullscreenOverlay>
