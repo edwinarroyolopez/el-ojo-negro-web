@@ -52,7 +52,7 @@ const Shell = styled.div<{ $open: boolean }>`
 
 const Container = styled(Card)`
   height: 100%;
-  padding: 1.1rem;
+  padding: 1rem;
   background:
     radial-gradient(circle at 82% 0%, rgba(205,180,124,0.12), transparent 28%),
     linear-gradient(180deg, rgba(17,17,17,0.98), rgba(9,9,9,0.98));
@@ -78,7 +78,7 @@ const Body = styled.div`
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   align-items: start;
 
   @media (max-width: 900px) {
@@ -99,24 +99,24 @@ const Kicker = styled.p`
 `;
 
 const Title = styled.h2`
-  margin: 0.45rem 0 0;
+  margin: 0.2rem 0 0;
   font-family: ${({ theme }) => theme.typography.fontSerif};
-  font-size: clamp(2rem, 4vw, 3.4rem);
-  line-height: 0.94;
+  font-size: clamp(1.8rem, 3.4vw, 3rem);
+  line-height: 0.92;
 `;
 
 const Lead = styled.p`
-  margin: 0.75rem 0 0;
+  margin: 0.55rem 0 0;
   color: ${({ theme }) => theme.colors.textMuted};
   max-width: 72ch;
-  line-height: 1.7;
+  line-height: 1.55;
 `;
 
 const StatusBand = styled.div`
-  margin-top: 1rem;
+  margin-top: 0.75rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.55rem;
   align-items: center;
 `;
 
@@ -125,7 +125,7 @@ const Metric = styled.div`
   align-items: center;
   gap: 0.55rem;
   border-radius: ${({ theme }) => theme.radius.pill};
-  padding: 0.45rem 0.8rem;
+  padding: 0.38rem 0.72rem;
   border: ${({ theme }) => theme.borders.subtle};
   background: rgba(255,255,255,0.03);
   color: ${({ theme }) => theme.colors.textMuted};
@@ -134,7 +134,7 @@ const Metric = styled.div`
 const Layout = styled.div`
   display: grid;
   gap: 1rem;
-  margin-top: 1.1rem;
+  margin-top: 0.85rem;
   min-height: 0;
 
   @media (min-width: 960px) {
@@ -320,8 +320,8 @@ const Footer = styled.div`
    flex-wrap: wrap;
    padding-top: 1rem;
    padding-bottom: 0.35rem;
-   margin-inline: -1.1rem;
-   padding-inline: 1.1rem;
+   margin-inline: -1rem;
+   padding-inline: 1rem;
    border-top: ${({ theme }) => theme.borders.subtle};
    background:
      linear-gradient(180deg, rgba(9,9,9,0), rgba(9,9,9,0.88) 16%, rgba(9,9,9,0.98) 32%),
