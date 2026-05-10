@@ -497,9 +497,16 @@ const FullscreenInfoBand = styled.div`
 
   @media (max-width: 760px) {
     transform: translateY(0);
+    gap: 0.08rem;
 
     ${Title} {
-      font-size: clamp(0.95rem, 4.8vw, 1.15rem);
+      font-size: clamp(0.88rem, 4.2vw, 1.02rem);
+      line-height: 1.02;
+    }
+
+    ${Caption} {
+      font-size: 0.72rem;
+      line-height: 1.45;
     }
   }
 `;
@@ -518,7 +525,7 @@ const FullscreenThumbRail = styled.div`
   }
 
   @media (max-width: 760px) {
-    grid-auto-columns: minmax(98px, 116px);
+    display: none;
   }
 `;
 
