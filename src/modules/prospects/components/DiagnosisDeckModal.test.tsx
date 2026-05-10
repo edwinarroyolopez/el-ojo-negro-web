@@ -76,6 +76,8 @@ const diagnosis = {
 describe('DiagnosisDeckModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
     uploadImage.mockResolvedValue({
       publicId: 'uploaded-1',
       url: 'https://example.com/uploaded.jpg',
@@ -153,5 +155,56 @@ describe('DiagnosisDeckModal', () => {
     expect(savedDeck.version).toBe(1);
     expect(savedDeck.slides).toHaveLength(4);
     expect(savedDeck.slides[0].isVisible).toBe(false);
+  });
+
+  it('renders the save button and internal modal regions', () => {
+    renderWithTheme(
+      <DiagnosisDeckModal
+        open
+        prospectName="Clinica LIV"
+        diagnosis={diagnosis}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Guardar deck' })).toBeInTheDocument();
+    expect(screen.getByTestId('diagnosis-deck-modal-body')).toBeInTheDocument();
+    expect(screen.getByTestId('diagnosis-deck-modal-footer')).toBeInTheDocument();
+  });
+
+  it('locks body scroll while open and restores it when closed', () => {
+    const { rerender, unmount } = renderWithTheme(
+      <DiagnosisDeckModal
+        open
+        prospectName="Clinica LIV"
+        diagnosis={diagnosis}
+        onClose={vi.fn()}
+        onSave={vi.fn()}
+      />,
+    );
+
+    expect(document.body.style.overflow).toBe('hidden');
+    expect(document.documentElement.style.overflow).toBe('hidden');
+
+    rerender(
+      <ThemeProvider theme={theme}>
+        <DiagnosisDeckModal
+          open={false}
+          prospectName="Clinica LIV"
+          diagnosis={diagnosis}
+          onClose={vi.fn()}
+          onSave={vi.fn()}
+        />
+      </ThemeProvider>,
+    );
+
+    expect(document.body.style.overflow).toBe('');
+    expect(document.documentElement.style.overflow).toBe('');
+
+    unmount();
+
+    expect(document.body.style.overflow).toBe('');
+    expect(document.documentElement.style.overflow).toBe('');
   });
 });

@@ -42,11 +42,11 @@ const Shell = styled.div<{ $open: boolean }>`
   z-index: ${({ theme }) => theme.zIndex.modal + 3};
 
   @media (max-width: 900px) {
-    inset: auto 1rem 1rem 1rem;
+    inset: 1rem;
     transform: ${({ $open }) => ($open ? 'translate(0, 0)' : 'translate(0, 10px)')};
     width: auto;
-    height: 90vh;
-    max-height: 90vh;
+    height: calc(100dvh - 2rem);
+    max-height: calc(100dvh - 2rem);
   }
 `;
 
@@ -61,6 +61,17 @@ const Container = styled(Card)`
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
   gap: 0;
+`;
+
+const Body = styled.div`
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.25rem;
+
+  @media (max-width: 900px) {
+    padding-right: 0;
+  }
 `;
 
 const Header = styled.div`
@@ -116,16 +127,10 @@ const Layout = styled.div`
   gap: 1rem;
   margin-top: 1.1rem;
   min-height: 0;
-  overflow: hidden;
 
   @media (min-width: 960px) {
     grid-template-columns: minmax(320px, 0.76fr) minmax(0, 1fr);
     align-items: start;
-  }
-
-  @media (max-width: 959px) {
-    overflow: auto;
-    padding-right: 0.15rem;
   }
 `;
 
@@ -133,11 +138,6 @@ const SlotList = styled.div`
   display: grid;
   gap: 0.75rem;
   min-height: 0;
-
-  @media (min-width: 960px) {
-    overflow: auto;
-    padding-right: 0.25rem;
-  }
 `;
 
 const SlotCard = styled.button<{ $active: boolean }>`
@@ -225,11 +225,6 @@ const Editor = styled.div`
   display: grid;
   gap: 1rem;
   min-height: 0;
-
-  @media (min-width: 960px) {
-    overflow: auto;
-    padding-right: 0.25rem;
-  }
 `;
 
 const Stage = styled.div`
@@ -308,11 +303,29 @@ const Toggle = styled.label`
 const Footer = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: 1rem;
-  margin-top: 1rem;
+   gap: 0.75rem;
+   align-items: center;
+   margin-top: 1rem;
+   flex-wrap: wrap;
+   padding-top: 1rem;
+   border-top: ${({ theme }) => theme.borders.subtle};
+   background: linear-gradient(180deg, rgba(9,9,9,0), rgba(9,9,9,0.96) 18%);
+
+   @media (max-width: 900px) {
+     align-items: stretch;
+   }
+`;
+
+const FooterActions = styled.div`
+  display: flex;
+  gap: 0.75rem;
   flex-wrap: wrap;
-  padding-top: 1rem;
-  border-top: ${({ theme }) => theme.borders.subtle};
+
+  @media (max-width: 900px) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
 `;
 
 function moveSlide(slides: DiagnosisSlideAsset[], index: number, direction: -1 | 1) {
@@ -348,6 +361,21 @@ export function DiagnosisDeckModal({
   const activeSlide = draft.slides[activeIndex] ?? draft.slides[0];
   const visibleCount = draft.slides.filter((slide) => slide.isVisible && slide.imageUrl.trim()).length;
   const isDirty = JSON.stringify(draft) !== JSON.stringify(baseDeck);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -467,205 +495,205 @@ export function DiagnosisDeckModal({
             </Button>
           </Header>
 
-          <Layout>
-            <SlotList>
-              {draft.slides.map((slide, index) => (
-                <SlotCard
-                  key={slide.id}
-                  type="button"
-                  $active={index === activeIndex}
-                  onClick={() => setActiveIndex(index)}
-                >
-                  <SlotTop>
-                    <SlotVisual>
-                      {slide.imageUrl ? (
-                        <img src={slide.thumbnailUrl || slide.imageUrl} alt={slide.alt || slide.title} />
-                      ) : (
-                        <Placeholder>Este slide aun no tiene imagen</Placeholder>
-                      )}
-                      {uploadingIndex === index ? (
-                        <UploadMask>
-                          <LoaderCircle size={20} className="spin" />
-                        </UploadMask>
-                      ) : null}
-                    </SlotVisual>
-                    <SlotMeta>
-                      <strong>{slide.title}</strong>
-                      <span>{slide.caption || 'Sin caption todavia.'}</span>
-                      <span>{slide.imageUrl ? (slide.isVisible ? 'Visible en pagina publica' : 'Oculto en pagina publica') : 'Este slide aun no tiene imagen'}</span>
-                    </SlotMeta>
-                  </SlotTop>
+          <Body data-testid="diagnosis-deck-modal-body">
+            <Layout>
+              <SlotList>
+                {draft.slides.map((slide, index) => (
+                  <SlotCard
+                    key={slide.id}
+                    type="button"
+                    $active={index === activeIndex}
+                    onClick={() => setActiveIndex(index)}
+                  >
+                    <SlotTop>
+                      <SlotVisual>
+                        {slide.imageUrl ? (
+                          <img src={slide.thumbnailUrl || slide.imageUrl} alt={slide.alt || slide.title} />
+                        ) : (
+                          <Placeholder>Este slide aun no tiene imagen</Placeholder>
+                        )}
+                        {uploadingIndex === index ? (
+                          <UploadMask>
+                            <LoaderCircle size={20} className="spin" />
+                          </UploadMask>
+                        ) : null}
+                      </SlotVisual>
+                      <SlotMeta>
+                        <strong>{slide.title}</strong>
+                        <span>{slide.caption || 'Sin caption todavia.'}</span>
+                        <span>{slide.imageUrl ? (slide.isVisible ? 'Visible en pagina publica' : 'Oculto en pagina publica') : 'Este slide aun no tiene imagen'}</span>
+                      </SlotMeta>
+                    </SlotTop>
 
-                  <SlotActions onClick={(event) => event.stopPropagation()}>
-                    <input
-                      ref={(element) => {
-                        fileInputsRef.current[index] = element;
-                      }}
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      style={{ display: 'none' }}
-                      onChange={(event) => handleUpload(index, event.target.files?.[0])}
-                    />
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => fileInputsRef.current[index]?.click()}
-                      disabled={uploadingIndex === index}
-                    >
-                      <ImagePlus size={16} /> {slide.imageUrl ? 'Reemplazar imagen' : 'Cargar imagen'}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() =>
-                        setDraft((current) =>
-                          normalizeDiagnosisSlideDeck(
-                            { ...current, slides: moveSlide(current.slides, index, -1) },
-                            prospectName,
-                          ),
-                        )
-                      }
-                      disabled={index === 0}
-                      aria-label={`Subir slide ${index + 1}`}
-                    >
-                      <ArrowUp size={16} />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() =>
-                        setDraft((current) =>
-                          normalizeDiagnosisSlideDeck(
-                            { ...current, slides: moveSlide(current.slides, index, 1) },
-                            prospectName,
-                          ),
-                        )
-                      }
-                      disabled={index === draft.slides.length - 1}
-                      aria-label={`Bajar slide ${index + 1}`}
-                    >
-                      <ArrowDown size={16} />
-                    </Button>
-                  </SlotActions>
-                </SlotCard>
-              ))}
-            </SlotList>
+                    <SlotActions onClick={(event) => event.stopPropagation()}>
+                      <input
+                        ref={(element) => {
+                          fileInputsRef.current[index] = element;
+                        }}
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        style={{ display: 'none' }}
+                        onChange={(event) => handleUpload(index, event.target.files?.[0])}
+                      />
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => fileInputsRef.current[index]?.click()}
+                        disabled={uploadingIndex === index}
+                      >
+                        <ImagePlus size={16} /> {slide.imageUrl ? 'Reemplazar imagen' : 'Cargar imagen'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() =>
+                          setDraft((current) =>
+                            normalizeDiagnosisSlideDeck(
+                              { ...current, slides: moveSlide(current.slides, index, -1) },
+                              prospectName,
+                            ),
+                          )
+                        }
+                        disabled={index === 0}
+                        aria-label={`Subir slide ${index + 1}`}
+                      >
+                        <ArrowUp size={16} />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() =>
+                          setDraft((current) =>
+                            normalizeDiagnosisSlideDeck(
+                              { ...current, slides: moveSlide(current.slides, index, 1) },
+                              prospectName,
+                            ),
+                          )
+                        }
+                        disabled={index === draft.slides.length - 1}
+                        aria-label={`Bajar slide ${index + 1}`}
+                      >
+                        <ArrowDown size={16} />
+                      </Button>
+                    </SlotActions>
+                  </SlotCard>
+                ))}
+              </SlotList>
 
-            {activeSlide ? (
-              <Editor>
-                <Stage>
-                  {activeSlide.imageUrl ? (
-                    <img src={activeSlide.imageUrl} alt={activeSlide.alt || activeSlide.title} />
-                  ) : (
-                    <Placeholder>Este slide aun no tiene imagen</Placeholder>
-                  )}
-                  <StageOverlay>
-                    <Kicker>{activeSlide.role}</Kicker>
-                    <div style={{ fontFamily: 'var(--font-serif), serif', fontSize: '1.8rem' }}>{activeSlide.title}</div>
-                  </StageOverlay>
-                </Stage>
+              {activeSlide ? (
+                <Editor>
+                  <Stage>
+                    {activeSlide.imageUrl ? (
+                      <img src={activeSlide.imageUrl} alt={activeSlide.alt || activeSlide.title} />
+                    ) : (
+                      <Placeholder>Este slide aun no tiene imagen</Placeholder>
+                    )}
+                    <StageOverlay>
+                      <Kicker>{activeSlide.role}</Kicker>
+                      <div style={{ fontFamily: 'var(--font-serif), serif', fontSize: '1.8rem' }}>{activeSlide.title}</div>
+                    </StageOverlay>
+                  </Stage>
 
-                <FormGrid>
-                  <Field>
-                    <span>Titulo</span>
-                    <Input
-                      value={activeSlide.title}
-                      onChange={(event) => updateSlide(activeIndex, { title: event.target.value })}
-                    />
-                  </Field>
+                  <FormGrid>
+                    <Field>
+                      <span>Titulo</span>
+                      <Input
+                        value={activeSlide.title}
+                        onChange={(event) => updateSlide(activeIndex, { title: event.target.value })}
+                      />
+                    </Field>
 
-                  <Field>
-                    <span>Caption</span>
-                    <Textarea
-                      value={activeSlide.caption || ''}
-                      onChange={(event) => updateSlide(activeIndex, { caption: event.target.value })}
-                    />
-                  </Field>
+                    <Field>
+                      <span>Caption</span>
+                      <Textarea
+                        value={activeSlide.caption || ''}
+                        onChange={(event) => updateSlide(activeIndex, { caption: event.target.value })}
+                      />
+                    </Field>
 
-                  <Field>
-                    <span>Alt</span>
-                    <Input
-                      value={activeSlide.alt}
-                      onChange={(event) => updateSlide(activeIndex, { alt: event.target.value })}
-                    />
-                  </Field>
+                    <Field>
+                      <span>Alt</span>
+                      <Input
+                        value={activeSlide.alt}
+                        onChange={(event) => updateSlide(activeIndex, { alt: event.target.value })}
+                      />
+                    </Field>
 
-                  <Field>
-                    <span>Role</span>
-                    <Select
-                      value={activeSlide.role}
-                      onChange={(event) => updateSlide(activeIndex, { role: event.target.value as DiagnosisSlideAsset['role'] })}
-                    >
-                      <option value="cover">cover</option>
-                      <option value="strengths">strengths</option>
-                      <option value="opportunities">opportunities</option>
-                      <option value="nextStep">nextStep</option>
-                    </Select>
-                  </Field>
+                    <Field>
+                      <span>Role</span>
+                      <Select
+                        value={activeSlide.role}
+                        onChange={(event) => updateSlide(activeIndex, { role: event.target.value as DiagnosisSlideAsset['role'] })}
+                      >
+                        <option value="cover">cover</option>
+                        <option value="strengths">strengths</option>
+                        <option value="opportunities">opportunities</option>
+                        <option value="nextStep">nextStep</option>
+                      </Select>
+                    </Field>
 
-                  <Field>
-                    <span>SectionKey</span>
-                    <Select
-                      value={activeSlide.sectionKey}
-                      onChange={(event) => updateSlide(activeIndex, { sectionKey: event.target.value as DiagnosisSlideAsset['sectionKey'] })}
-                    >
-                      <option value="executiveReading">executiveReading</option>
-                      <option value="strengths">strengths</option>
-                      <option value="opportunities">opportunities</option>
-                      <option value="nextStep">nextStep</option>
-                    </Select>
-                  </Field>
+                    <Field>
+                      <span>SectionKey</span>
+                      <Select
+                        value={activeSlide.sectionKey}
+                        onChange={(event) => updateSlide(activeIndex, { sectionKey: event.target.value as DiagnosisSlideAsset['sectionKey'] })}
+                      >
+                        <option value="executiveReading">executiveReading</option>
+                        <option value="strengths">strengths</option>
+                        <option value="opportunities">opportunities</option>
+                        <option value="nextStep">nextStep</option>
+                      </Select>
+                    </Field>
 
-                  <Toggle>
-                    <input
-                      type="checkbox"
-                      checked={activeSlide.isVisible}
-                      onChange={(event) => updateSlide(activeIndex, { isVisible: event.target.checked })}
-                    />
-                    <span>Visible en pagina publica</span>
-                  </Toggle>
+                    <Toggle>
+                      <input
+                        type="checkbox"
+                        checked={activeSlide.isVisible}
+                        onChange={(event) => updateSlide(activeIndex, { isVisible: event.target.checked })}
+                      />
+                      <span>Visible en pagina publica</span>
+                    </Toggle>
 
-                  <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => fileInputsRef.current[activeIndex]?.click()}
-                      disabled={uploadingIndex === activeIndex}
-                    >
-                      <ImagePlus size={16} /> {activeSlide.imageUrl ? 'Reemplazar imagen' : 'Cargar imagen'}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() =>
-                        updateSlide(activeIndex, {
-                          imageUrl: '',
-                          thumbnailUrl: '',
-                          publicId: '',
-                          originalFilename: '',
-                        })
-                      }
-                    >
-                      <Trash2 size={16} /> Eliminar imagen del deck
-                    </Button>
-                  </div>
-                </FormGrid>
-              </Editor>
-            ) : null}
-          </Layout>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => fileInputsRef.current[activeIndex]?.click()}
+                        disabled={uploadingIndex === activeIndex}
+                      >
+                        <ImagePlus size={16} /> {activeSlide.imageUrl ? 'Reemplazar imagen' : 'Cargar imagen'}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() =>
+                          updateSlide(activeIndex, {
+                            imageUrl: '',
+                            thumbnailUrl: '',
+                            publicId: '',
+                            originalFilename: '',
+                          })
+                        }
+                      >
+                        <Trash2 size={16} /> Eliminar imagen del deck
+                      </Button>
+                    </div>
+                  </FormGrid>
+                </Editor>
+              ) : null}
+            </Layout>
+          </Body>
 
-          <Footer>
-            <Lead style={{ margin: 0 }}>
-              Puedes publicar el diagnostico aunque el deck no tenga 4 slides. El warning vive solo en frontend.
-            </Lead>
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <Footer data-testid="diagnosis-deck-modal-footer">
+            <Lead style={{ margin: 0 }}>{`${visibleCount}/4 visibles · ${draft.status}`}</Lead>
+            <FooterActions>
               <Button variant="ghost" onClick={handleAttemptClose} disabled={isSaving}>
                 Cancelar
               </Button>
               <Button onClick={handleSave} disabled={isSaving || uploadingIndex !== null}>
                 {isSaving ? 'Guardando...' : 'Guardar deck'}
               </Button>
-            </div>
+            </FooterActions>
           </Footer>
         </Container>
       </Shell>
