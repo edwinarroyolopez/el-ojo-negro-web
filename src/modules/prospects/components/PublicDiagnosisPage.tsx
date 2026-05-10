@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { prospectsService } from '../services/prospects.service';
-import { ClientViabilitySandbox } from './ClientViabilitySandbox';
 import { DiagnosisPreview } from './DiagnosisPreview';
 import { DiagnosisStoryline } from './DiagnosisStoryline';
 import { PublicDiagnosisGallery } from './PublicDiagnosisGallery';
@@ -109,6 +108,7 @@ const Note = styled.div`
   border: ${({ theme }) => theme.borders.emphasized};
   border-radius: ${({ theme }) => theme.radius.lg};
   padding: 1rem 1.1rem;
+  width: min(100%, 72ch);
   background: rgba(205, 180, 124, 0.07);
   color: ${({ theme }) => theme.colors.textMuted};
 `;
@@ -198,8 +198,6 @@ export function PublicDiagnosisPage({ slug }: { slug: string }) {
           <Note>
             <strong>Nota de lectura:</strong> este diagnóstico no afirma pérdidas ni promete resultados. Propone escenarios visibles de mejora para claridad, confianza y recorrido comercial.
           </Note>
-
-          <ClientViabilitySandbox />
         </Main>
       </Shell>
     </Page>
