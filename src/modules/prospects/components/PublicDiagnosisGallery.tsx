@@ -304,18 +304,18 @@ const FullscreenOverlay = styled.div<{ $open: boolean }>`
   background: rgba(4, 4, 4, 0.94);
   backdrop-filter: blur(14px);
   z-index: ${({ theme }) => theme.zIndex.modal + 10};
-  padding: 1rem;
+  padding: 0.8rem;
 
   @media (max-width: 760px) {
-    padding: 0.75rem;
+    padding: 0.5rem;
   }
 `;
 
 const FullscreenShell = styled.div`
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 0.85rem;
-  width: min(1440px, 100%);
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 0.4rem;
+  width: min(1540px, 100%);
   margin: 0 auto;
 `;
 
@@ -333,7 +333,7 @@ const FullscreenStageWrap = styled.div`
 
 const FullscreenStage = styled.div`
   min-height: 0;
-  height: min(72vh, 920px);
+  height: min(84vh, 1120px);
   border-radius: 28px;
   overflow: hidden;
   border: ${({ theme }) => theme.borders.subtle};
@@ -347,7 +347,7 @@ const FullscreenStage = styled.div`
   }
 
   @media (max-width: 760px) {
-    height: min(56vh, 620px);
+    height: min(72vh, 860px);
     border-radius: 22px;
   }
 `;
@@ -415,58 +415,68 @@ const MobileNavRight = styled(NavButton)`
 
 const FullscreenFooter = styled.div`
   display: grid;
-  gap: 0.65rem;
-`;
-
-const FullscreenTopbar = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: center;
+  gap: 0.35rem;
 `;
 
 const QuietCloseButton = styled.button`
   appearance: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.42rem;
-  min-height: 36px;
+  justify-content: center;
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  width: 42px;
+  height: 42px;
   padding: 0;
-  border: 0;
-  background: transparent;
-  color: ${({ theme }) => theme.colors.textMuted};
+  border-radius: 999px;
+  border: ${({ theme }) => theme.borders.subtle};
+  background: rgba(8, 8, 8, 0.72);
+  color: ${({ theme }) => theme.colors.text};
   cursor: pointer;
-  font-size: ${({ theme }) => theme.typography.size.sm};
+  backdrop-filter: blur(12px);
+  z-index: 3;
 
   &:hover {
-    color: ${({ theme }) => theme.colors.text};
+    border-color: ${({ theme }) => theme.colors.borderStrong};
+    background: rgba(18, 18, 18, 0.9);
+  }
+
+  @media (max-width: 760px) {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 40px;
+    height: 40px;
   }
 `;
 
 const FullscreenCounter = styled.div`
-  display: inline-flex;
-  align-items: center;
-  min-height: 36px;
-  padding: 0 0.8rem;
-  border-radius: 999px;
-  border: ${({ theme }) => theme.borders.subtle};
-  background: rgba(255,255,255,0.03);
+  position: absolute;
+  top: 0.8rem;
+  left: 0.8rem;
   color: ${({ theme }) => theme.colors.accent};
-  font-size: ${({ theme }) => theme.typography.size.xs};
+  font-size: 0.72rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+  z-index: 3;
+
+  @media (max-width: 760px) {
+    top: 0.6rem;
+    left: 0.6rem;
+    font-size: 0.68rem;
+  }
 `;
 
 const FullscreenInfoBand = styled.div`
   display: grid;
-  gap: 0.3rem;
-  width: min(760px, 100%);
+  gap: 0.18rem;
+  width: min(820px, 100%);
   margin: 0 auto;
   text-align: center;
-  transform: translateY(-0.35rem);
+  transform: translateY(-0.08rem);
 
   ${Title} {
-    font-size: clamp(1.3rem, 3vw, 2.2rem);
+    font-size: clamp(1.05rem, 2vw, 1.5rem);
     line-height: 0.98;
   }
 
@@ -474,14 +484,14 @@ const FullscreenInfoBand = styled.div`
     display: block;
     margin-inline: auto;
     max-width: 54ch;
-    font-size: ${({ theme }) => theme.typography.size.sm};
+    font-size: ${({ theme }) => theme.typography.size.xs};
   }
 
   @media (max-width: 760px) {
-    transform: translateY(-0.15rem);
+    transform: translateY(0);
 
     ${Title} {
-      font-size: clamp(1.15rem, 5.6vw, 1.55rem);
+      font-size: clamp(0.95rem, 4.8vw, 1.15rem);
     }
   }
 `;
@@ -693,12 +703,10 @@ export function PublicDiagnosisGallery({ slides }: Props) {
         }}
       >
         <FullscreenShell>
-          <FullscreenTopbar>
-            <FullscreenCounter>{`Vision editorial ${activeIndex + 1}/${slides.length}`}</FullscreenCounter>
-            <QuietCloseButton type="button" onClick={() => setIsFullscreenOpen(false)}>
-              <X size={16} /> Cerrar
-            </QuietCloseButton>
-          </FullscreenTopbar>
+          <FullscreenCounter>{`${activeIndex + 1}/${slides.length}`}</FullscreenCounter>
+          <QuietCloseButton type="button" onClick={() => setIsFullscreenOpen(false)} aria-label="Cerrar pantalla completa">
+            <X size={18} />
+          </QuietCloseButton>
 
           <FullscreenStageWrap>
             <NavButton type="button" onClick={() => move(-1)} aria-label="Imagen anterior">
