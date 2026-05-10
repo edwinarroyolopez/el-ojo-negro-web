@@ -34,6 +34,7 @@ const Shell = styled.div<{ $open: boolean }>`
   transform: ${({ $open }) =>
     $open ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -48%) scale(0.98)'};
   width: min(1280px, calc(100vw - 2rem));
+  height: min(92vh, 1080px);
   max-height: min(92vh, 1080px);
   opacity: ${({ $open }) => ($open ? 1 : 0)};
   pointer-events: ${({ $open }) => ($open ? 'auto' : 'none')};
@@ -44,17 +45,22 @@ const Shell = styled.div<{ $open: boolean }>`
     inset: auto 1rem 1rem 1rem;
     transform: ${({ $open }) => ($open ? 'translate(0, 0)' : 'translate(0, 10px)')};
     width: auto;
+    height: 90vh;
     max-height: 90vh;
   }
 `;
 
 const Container = styled(Card)`
+  height: 100%;
   padding: 1.1rem;
   background:
     radial-gradient(circle at 82% 0%, rgba(205,180,124,0.12), transparent 28%),
     linear-gradient(180deg, rgba(17,17,17,0.98), rgba(9,9,9,0.98));
   box-shadow: ${({ theme }) => theme.shadows.glow};
-  overflow: auto;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 0;
 `;
 
 const Header = styled.div`
@@ -109,16 +115,29 @@ const Layout = styled.div`
   display: grid;
   gap: 1rem;
   margin-top: 1.1rem;
+  min-height: 0;
+  overflow: hidden;
 
   @media (min-width: 960px) {
     grid-template-columns: minmax(320px, 0.76fr) minmax(0, 1fr);
     align-items: start;
+  }
+
+  @media (max-width: 959px) {
+    overflow: auto;
+    padding-right: 0.15rem;
   }
 `;
 
 const SlotList = styled.div`
   display: grid;
   gap: 0.75rem;
+  min-height: 0;
+
+  @media (min-width: 960px) {
+    overflow: auto;
+    padding-right: 0.25rem;
+  }
 `;
 
 const SlotCard = styled.button<{ $active: boolean }>`
@@ -205,6 +224,12 @@ const SlotActions = styled.div`
 const Editor = styled.div`
   display: grid;
   gap: 1rem;
+  min-height: 0;
+
+  @media (min-width: 960px) {
+    overflow: auto;
+    padding-right: 0.25rem;
+  }
 `;
 
 const Stage = styled.div`
@@ -286,6 +311,8 @@ const Footer = styled.div`
   gap: 1rem;
   margin-top: 1rem;
   flex-wrap: wrap;
+  padding-top: 1rem;
+  border-top: ${({ theme }) => theme.borders.subtle};
 `;
 
 function moveSlide(slides: DiagnosisSlideAsset[], index: number, direction: -1 | 1) {
