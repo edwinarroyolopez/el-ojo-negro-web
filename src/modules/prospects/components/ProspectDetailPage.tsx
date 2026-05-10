@@ -25,11 +25,14 @@ import {
 } from '../utils';
 import { buildSlidesGenerationPrompt } from '../utils/slides-prompt.utils';
 import { CopyPromptPanel } from './CopyPromptPanel';
+import { DiagnosisDeckModal } from './DiagnosisDeckModal';
+import { DiagnosisDeckSummaryCard } from './DiagnosisDeckSummaryCard';
 import { DiagnosisEditor } from './DiagnosisEditor';
 import { DiagnosisPreview } from './DiagnosisPreview';
 import { CommercialNorthModal } from './CommercialNorthModal';
 import { OutreachScriptModal } from './OutreachScriptModal';
 import { ProspectPriorityBadge, ProspectStatusBadge } from './ProspectStatusBadge';
+import { getDiagnosisSlideDeck, mergeDiagnosisSlideDeckIntoStructured } from '../utils/diagnosis-slide-deck.utils';
 
 const Page = styled.div`
   display: grid;
@@ -227,10 +230,12 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const [internalNotes, setInternalNotes] = useState(prospect.internalNotes ?? '');
   const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
   const [isCommercialNorthOpen, setIsCommercialNorthOpen] = useState(false);
+  const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
   const [diagnosisJson, setDiagnosisJson] = useState(() =>
     diagnosisToGeneratedJson(prospect.diagnosis),
   );
   const diagnosisValidation = validateGeneratedDiagnosisJson(diagnosisJson);
+  const deck = getDiagnosisSlideDeck(prospect.diagnosis, prospect.name);
 
   const updateProspectMutation = useMutation({
     mutationFn: (payload: Parameters<typeof prospectsService.updateProspect>[1]) => prospectsService.updateProspect(id, payload),
@@ -280,6 +285,10 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
         throw new Error('Diagnosis JSON is invalid');
       }
 
+      if (deck.status !== 'READY') {
+        toast.warning('El diagnóstico se puede publicar, pero el deck visual aún está incompleto.');
+      }
+
       await prospectsService.updateDiagnosis(id, {
         ...diagnosisValidation.payload,
       });
@@ -296,6 +305,37 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
         queryClient.invalidateQueries({ queryKey: ['prospects', 'metrics'] }),
       ]);
       toast.success('Diagnóstico publicado');
+    },
+  });
+
+  const saveDeckMutation = useMutation({
+    mutationFn: async (nextDeck: ReturnType<typeof getDiagnosisSlideDeck>) => {
+      const baseDiagnosis = diagnosisValidation.payload
+        ? { ...prospect.diagnosis, ...diagnosisValidation.payload }
+        : prospect.diagnosis;
+
+      return prospectsService.updateDiagnosis(id, {
+        title: baseDiagnosis.title,
+        slug: baseDiagnosis.slug,
+        visibility: baseDiagnosis.visibility,
+        status: baseDiagnosis.status,
+        markdown: baseDiagnosis.markdown,
+        structured: mergeDiagnosisSlideDeckIntoStructured(baseDiagnosis.structured, nextDeck),
+        summary: baseDiagnosis.summary,
+        scores: baseDiagnosis.scores,
+        publicNotes: baseDiagnosis.publicNotes,
+      });
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['prospects', 'detail', id] }),
+        queryClient.invalidateQueries({ queryKey: ['prospects', 'list'] }),
+      ]);
+      toast.success('Deck visual guardado');
+      setIsDeckModalOpen(false);
+    },
+    onError: () => {
+      toast.error('No fue posible guardar el deck visual');
     },
   });
 
@@ -537,6 +577,11 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
               </HelperText>
             ) : null}
           </HelperCard>
+          <DiagnosisDeckSummaryCard
+            deck={deck}
+            diagnosisStatus={prospect.diagnosis.status}
+            onEdit={() => setIsDeckModalOpen(true)}
+          />
           <Card>
             <DiagnosisEditor
               value={diagnosisJson}
@@ -583,6 +628,24 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
         open={isCommercialNorthOpen}
         onClose={() => setIsCommercialNorthOpen(false)}
       />
+
+      {isDeckModalOpen ? (
+        <DiagnosisDeckModal
+          open={isDeckModalOpen}
+          prospectName={prospect.name}
+          diagnosis={
+            diagnosisValidation.payload
+              ? {
+                  ...prospect.diagnosis,
+                  ...diagnosisValidation.payload,
+                }
+              : prospect.diagnosis
+          }
+          isSaving={saveDeckMutation.isPending}
+          onClose={() => setIsDeckModalOpen(false)}
+          onSave={(nextDeck) => saveDeckMutation.mutateAsync(nextDeck)}
+        />
+      ) : null}
     </Page>
   );
 }

@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/Button';
 import { prospectsService } from '../services/prospects.service';
 import { ClientViabilitySandbox } from './ClientViabilitySandbox';
 import { DiagnosisPreview } from './DiagnosisPreview';
+import { DiagnosisStoryline } from './DiagnosisStoryline';
+import { PublicDiagnosisGallery } from './PublicDiagnosisGallery';
+import { getDiagnosisSlideDeck, getVisibleDiagnosisSlides } from '../utils/diagnosis-slide-deck.utils';
 
 const Page = styled.div`
   max-width: 1240px;
@@ -133,6 +136,7 @@ export function PublicDiagnosisPage({ slug }: { slug: string }) {
       : undefined;
   const structured = (data.diagnosis.structured ?? {}) as Record<string, unknown>;
   const whatsappUrl = typeof structured.whatsappUrl === 'string' ? structured.whatsappUrl : undefined;
+  const visibleSlides = getVisibleDiagnosisSlides(getDiagnosisSlideDeck(data.diagnosis, data.prospect.name));
 
   return (
     <Page>
@@ -182,7 +186,14 @@ export function PublicDiagnosisPage({ slug }: { slug: string }) {
             </Sigil>
           </Hero>
 
-          <DiagnosisPreview prospect={data.prospect} diagnosis={data.diagnosis} />
+          {visibleSlides.length > 0 ? (
+            <>
+              <PublicDiagnosisGallery slides={visibleSlides} />
+              <DiagnosisStoryline prospect={data.prospect} diagnosis={data.diagnosis} />
+            </>
+          ) : (
+            <DiagnosisPreview prospect={data.prospect} diagnosis={data.diagnosis} />
+          )}
 
           <Note>
             <strong>Nota de lectura:</strong> este diagnóstico no afirma pérdidas ni promete resultados. Propone escenarios visibles de mejora para claridad, confianza y recorrido comercial.

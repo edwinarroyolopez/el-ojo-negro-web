@@ -11,6 +11,7 @@ import {
   parseMarkdown,
   renderMarkdownBlocks,
 } from '../utils';
+import { DiagnosisDeckPreview } from './DiagnosisDeckPreview';
 
 const Shell = styled.section`
   display: grid;
@@ -158,6 +159,8 @@ export function DiagnosisPreview({
           {diagnosis?.summary || 'Observación externa basada en fuentes públicas disponibles.'}
         </Lead>
       </Section>
+
+      <DiagnosisDeckPreview diagnosis={diagnosis} />
 
       {scoreEntries.length > 0 ? (
         <ScoreGrid>

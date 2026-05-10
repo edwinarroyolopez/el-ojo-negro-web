@@ -41,6 +41,41 @@ export type ProspectDiagnosis = {
   lastEditedAt?: string;
 };
 
+export type DiagnosisSlideRole =
+  | 'cover'
+  | 'strengths'
+  | 'opportunities'
+  | 'nextStep';
+
+export type DiagnosisSlideSectionKey =
+  | 'executiveReading'
+  | 'strengths'
+  | 'opportunities'
+  | 'nextStep';
+
+export type DiagnosisSlideDeckStatus = 'EMPTY' | 'INCOMPLETE' | 'READY';
+
+export type DiagnosisSlideAsset = {
+  id: string;
+  order: number;
+  role: DiagnosisSlideRole;
+  title: string;
+  caption?: string;
+  imageUrl: string;
+  thumbnailUrl?: string;
+  publicId?: string;
+  originalFilename?: string;
+  alt: string;
+  sectionKey: DiagnosisSlideSectionKey;
+  isVisible: boolean;
+};
+
+export type DiagnosisSlideDeck = {
+  version: 1;
+  status: DiagnosisSlideDeckStatus;
+  slides: DiagnosisSlideAsset[];
+};
+
 export type ProspectOutreach = {
   contactAttempts?: number;
   lastContactedAt?: string;
