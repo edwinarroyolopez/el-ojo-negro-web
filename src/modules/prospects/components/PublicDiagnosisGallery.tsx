@@ -305,6 +305,7 @@ const FullscreenOverlay = styled.div<{ $open: boolean }>`
   backdrop-filter: blur(14px);
   z-index: ${({ theme }) => theme.zIndex.modal + 10};
   padding: 0.8rem;
+  overflow: hidden;
 
   @media (max-width: 760px) {
     padding: 0.5rem;
@@ -316,6 +317,7 @@ const FullscreenShell = styled.div`
   grid-template-rows: minmax(0, 1fr) auto;
   gap: 0.4rem;
   width: min(1540px, 100%);
+  height: 100%;
   margin: 0 auto;
 `;
 
@@ -416,6 +418,12 @@ const MobileNavRight = styled(NavButton)`
 const FullscreenFooter = styled.div`
   display: grid;
   gap: 0.35rem;
+  padding: 0 0 0.55rem;
+  background: rgba(4, 4, 4, 0.98);
+
+  @media (max-width: 760px) {
+    padding-bottom: 0.35rem;
+  }
 `;
 
 const QuietCloseButton = styled.button`
