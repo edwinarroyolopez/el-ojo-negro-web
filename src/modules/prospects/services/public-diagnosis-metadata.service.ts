@@ -6,6 +6,17 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') ||
   'https://eon-backend-production.up.railway.app/api';
 
+function buildOpenGraphImageUrl(imageUrl: string) {
+  if (!imageUrl.includes('res.cloudinary.com') || !imageUrl.includes('/upload/')) {
+    return imageUrl;
+  }
+
+  return imageUrl.replace(
+    '/upload/',
+    '/upload/f_auto,q_auto,w_1200,h_630,c_fill,g_auto/',
+  );
+}
+
 function getSiteUrl() {
   const value =
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -44,7 +55,8 @@ export function buildPublicDiagnosisMetadata(
     seo.status === 'READY' || (seo.title && seo.description && seo.imageUrl)
       ? seo.description
       : `Lectura ejecutiva de presencia digital, confianza y conversion para ${prospectName}.`;
-  const image = seo.imageUrl || '/EL-OJO-NEGRO-DARK.jpeg';
+  const image = buildOpenGraphImageUrl(seo.imageUrl || '/EL-OJO-NEGRO-DARK.jpeg');
+  const imageAlt = seo.imageAlt || title;
 
   return {
     metadataBase: new URL(getSiteUrl()),
@@ -53,7 +65,7 @@ export function buildPublicDiagnosisMetadata(
     openGraph: {
       title,
       description,
-      images: [{ url: image, alt: seo.imageAlt || title }],
+      images: [{ url: image, alt: imageAlt, width: 1200, height: 630 }],
     },
     twitter: {
       card: 'summary_large_image',
