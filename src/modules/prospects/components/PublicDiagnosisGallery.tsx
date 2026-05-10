@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import type { DiagnosisSlideAsset } from '../types';
 
 const Shell = styled.section`
@@ -371,6 +370,10 @@ const NavButton = styled.button`
     background: rgba(255,255,255,0.08);
   }
 
+  @media (min-width: 761px) {
+    margin-inline: -0.22rem;
+  }
+
   @media (max-width: 760px) {
     display: none;
   }
@@ -389,7 +392,7 @@ const MobileNavLeft = styled(NavButton)`
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
-    left: 1rem;
+    left: 0.7rem;
   }
 `;
 
@@ -406,13 +409,13 @@ const MobileNavRight = styled(NavButton)`
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
-    right: 1rem;
+    right: 0.7rem;
   }
 `;
 
 const FullscreenFooter = styled.div`
   display: grid;
-  gap: 0.85rem;
+  gap: 0.65rem;
 `;
 
 const FullscreenTopbar = styled.div`
@@ -420,6 +423,24 @@ const FullscreenTopbar = styled.div`
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
+`;
+
+const QuietCloseButton = styled.button`
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.textMuted};
+  cursor: pointer;
+  font-size: ${({ theme }) => theme.typography.size.sm};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.text};
+  }
 `;
 
 const FullscreenCounter = styled.div`
@@ -438,32 +459,48 @@ const FullscreenCounter = styled.div`
 
 const FullscreenInfoBand = styled.div`
   display: grid;
-  gap: 0.4rem;
+  gap: 0.3rem;
   width: min(760px, 100%);
   margin: 0 auto;
   text-align: center;
+  transform: translateY(-0.35rem);
 
   ${Title} {
-    font-size: clamp(1.6rem, 4vw, 3rem);
+    font-size: clamp(1.3rem, 3vw, 2.2rem);
+    line-height: 0.98;
   }
 
   ${Caption} {
     display: block;
     margin-inline: auto;
+    max-width: 54ch;
+    font-size: ${({ theme }) => theme.typography.size.sm};
+  }
+
+  @media (max-width: 760px) {
+    transform: translateY(-0.15rem);
+
+    ${Title} {
+      font-size: clamp(1.15rem, 5.6vw, 1.55rem);
+    }
   }
 `;
 
 const FullscreenThumbRail = styled.div`
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(140px, 180px);
-  gap: 0.75rem;
+  grid-auto-columns: minmax(120px, 152px);
+  gap: 0.6rem;
   overflow-x: auto;
   padding-bottom: 0.25rem;
   scrollbar-width: none;
 
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  @media (max-width: 760px) {
+    grid-auto-columns: minmax(98px, 116px);
   }
 `;
 
@@ -658,9 +695,9 @@ export function PublicDiagnosisGallery({ slides }: Props) {
         <FullscreenShell>
           <FullscreenTopbar>
             <FullscreenCounter>{`Vision editorial ${activeIndex + 1}/${slides.length}`}</FullscreenCounter>
-            <Button variant="ghost" onClick={() => setIsFullscreenOpen(false)}>
+            <QuietCloseButton type="button" onClick={() => setIsFullscreenOpen(false)}>
               <X size={16} /> Cerrar
-            </Button>
+            </QuietCloseButton>
           </FullscreenTopbar>
 
           <FullscreenStageWrap>
