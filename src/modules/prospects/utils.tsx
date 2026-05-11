@@ -6,6 +6,7 @@ import type {
   Prospect,
   ProspectDiagnosis,
 } from './types';
+import { buildDiagnosisResearchPrompt } from './utils/diagnosis-research-prompt.utils';
 
 type MarkdownBlock =
   | { type: 'h1' | 'h2' | 'h3'; text: string }
@@ -226,56 +227,7 @@ export function formatPriority(value?: string) {
 }
 
 export function buildResearchPrompt(prospect: Prospect) {
-  const payload = JSON.stringify(prospect, null, 2);
-  const expectedOutput = JSON.stringify(
-    {
-      title: `Diagnóstico Express — ${prospect.name}`,
-      slug: prospect.diagnosis.slug || 'slug-sugerido-del-negocio',
-      visibility: 'UNLISTED',
-      status: 'READY',
-      summary:
-        'Resumen ejecutivo breve, sereno y orientado a oportunidad visible.',
-      markdown:
-        '# Resumen ejecutivo\nTexto...\n\n## Señales positivas\n- ...\n\n## Oportunidades principales\n- ...',
-      publicNotes:
-        'Observación externa basada en fuentes públicas disponibles.',
-      scores: [
-        { label: 'Claridad de oferta', value: 8.2 },
-        { label: 'Confianza', value: 8.4 },
-        { label: 'WhatsApp', value: 8.6 },
-      ],
-      structured: {
-        opportunities: ['Oportunidad 1', 'Oportunidad 2', 'Oportunidad 3'],
-        quickWin: 'Mejora rápida sugerida.',
-        minimumSystem: 'Sistema mínimo recomendado.',
-        whatsappUrl: 'https://wa.me/573001234567',
-      },
-    },
-    null,
-    2,
-  );
-
-  return [
-    'Actua como estratega digital senior de El Ojo Negro.',
-    'Construye un diagnostico publico cuidadoso a partir de este prospecto.',
-    'Tu respuesta debe ser SOLO un JSON valido. No agregues explicaciones, fences markdown ni texto fuera del JSON.',
-    'Reglas obligatorias:',
-    '- no inventes metricas ni hechos no observables',
-    '- no digas que el prospecto pierde clientes como hecho',
-    '- usa lenguaje de oportunidad: se observa, podria mejorar, hay una oportunidad visible',
-    '- prioriza claridad, confianza, WhatsApp, mobile, Google, Instagram y web',
-    '- mantén un tono sobrio, editorial y sereno',
-    '- separa: resumen ejecutivo, señales positivas, tres oportunidades, sistema minimo recomendado y mejora rapida',
-    '- si propones CTA o embudos, preséntalos como recomendación, no promesa',
-    '- devuelve title, slug, visibility, status, summary, markdown, publicNotes, scores y structured',
-    '- si no conoces un dato, omite el campo o usa una formulación prudente; no inventes',
-    '',
-    'Schema esperado de salida JSON:',
-    expectedOutput,
-    '',
-    'Prospecto JSON:',
-    payload,
-  ].join('\n');
+  return buildDiagnosisResearchPrompt(prospect);
 }
 
 export function buildWhatsAppMessage(prospect: Prospect) {
