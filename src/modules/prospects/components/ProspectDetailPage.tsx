@@ -33,6 +33,7 @@ import { DiagnosisEditor } from './DiagnosisEditor';
 import { DiagnosisPreview } from './DiagnosisPreview';
 import { CommercialNorthModal } from './CommercialNorthModal';
 import { OutreachScriptModal } from './OutreachScriptModal';
+import { ProspectManualEditModal } from './ProspectManualEditModal';
 import { ProspectPriorityBadge, ProspectStatusBadge } from './ProspectStatusBadge';
 import { getDiagnosisSlideDeck, mergeDiagnosisSlideDeckIntoStructured } from '../utils/diagnosis-slide-deck.utils';
 import { getDiagnosisSeo, mergeDiagnosisSeoIntoStructured } from '../utils/diagnosis-seo.utils';
@@ -100,6 +101,13 @@ const RowList = styled.div`
   margin-top: 1rem;
 `;
 
+const CardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+`;
+
 const Row = styled.div`
   display: grid;
   grid-template-columns: 1fr auto;
@@ -127,6 +135,21 @@ const ExternalValue = styled.a`
   text-decoration: none;
   word-break: break-word;
   transition: color 180ms ease;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.accent};
+  }
+`;
+
+const InlineEmptyButton = styled.button`
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: ${({ theme }) => theme.colors.text};
+  font: inherit;
+  font-weight: ${({ theme }) => theme.typography.weight.semibold};
+  cursor: pointer;
+  padding: 0;
 
   &:hover {
     color: ${({ theme }) => theme.colors.accent};
@@ -235,6 +258,7 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const [isCommercialNorthOpen, setIsCommercialNorthOpen] = useState(false);
   const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
   const [isSeoModalOpen, setIsSeoModalOpen] = useState(false);
+  const [isManualEditOpen, setIsManualEditOpen] = useState(false);
   const [diagnosisJson, setDiagnosisJson] = useState(() =>
     diagnosisToGeneratedJson(prospect.diagnosis),
   );
@@ -438,6 +462,15 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
     toast.success('Notas internas guardadas');
   }
 
+  async function saveManualCompletion(payload: Parameters<typeof prospectsService.updateProspect>[1]) {
+    await updateProspectMutation.mutateAsync(payload);
+    if (typeof payload.internalNotes === 'string') {
+      setInternalNotes(payload.internalNotes);
+    }
+    toast.success('Datos del prospecto actualizados');
+    setIsManualEditOpen(false);
+  }
+
   return (
     <Page>
       <Hero>
@@ -490,7 +523,12 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
       <TwoCol>
         <div style={{ display: 'grid', gap: '1rem' }}>
           <Card>
-            <Kicker>Prospecto</Kicker>
+            <CardHeader>
+              <Kicker>Prospecto</Kicker>
+              <Button variant="ghost" onClick={() => setIsManualEditOpen(true)} disabled={updateProspectMutation.isPending}>
+                Completar datos
+              </Button>
+            </CardHeader>
             <RowList>
               <Row>
                 <span>Website</span>
@@ -530,7 +568,11 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
                       <ArrowUpRight size={14} />
                     </ExternalValue>
                   ) : (
-                    primaryPhone || 'Sin telefono'
+                    primaryPhone || (
+                      <InlineEmptyButton type="button" onClick={() => setIsManualEditOpen(true)}>
+                        Sin telefono
+                      </InlineEmptyButton>
+                    )
                   )}
                 </strong>
               </Row>
@@ -699,6 +741,16 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
           isSaving={saveSeoMutation.isPending}
           onClose={() => setIsSeoModalOpen(false)}
           onSave={(nextSeo) => saveSeoMutation.mutateAsync(nextSeo)}
+        />
+      ) : null}
+
+      {isManualEditOpen ? (
+        <ProspectManualEditModal
+          open={isManualEditOpen}
+          prospect={prospect}
+          isSaving={updateProspectMutation.isPending}
+          onClose={() => setIsManualEditOpen(false)}
+          onSave={saveManualCompletion}
         />
       ) : null}
     </Page>
