@@ -146,7 +146,6 @@ export function PublicDiagnosisPage({ slug }: { slug: string }) {
             EL OJO NEGRO
             <small>Diagnóstico Express de Presencia Digital</small>
           </Brand>
-          <span style={{ color: '#b5aea1', fontSize: '0.85rem' }}>{`/diagnosticos/${slug}`}</span>
         </Header>
 
         <Main>
