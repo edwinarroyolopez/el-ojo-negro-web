@@ -7,6 +7,7 @@ import type {
   ProspectDiagnosis,
 } from './types';
 import { buildDiagnosisResearchPrompt } from './utils/diagnosis-research-prompt.utils';
+import { buildInitialWhatsAppOutreachMessage } from './utils/whatsapp-outreach.utils';
 
 type MarkdownBlock =
   | { type: 'h1' | 'h2' | 'h3'; text: string }
@@ -231,11 +232,7 @@ export function buildResearchPrompt(prospect: Prospect) {
 }
 
 export function buildWhatsAppMessage(prospect: Prospect) {
-  return [
-    `Hola ${prospect.name}.`,
-    'Estuve revisando su presencia digital con mirada externa y encontré una oportunidad visible para ordenar mejor el recorrido entre confianza, servicios y conversion hacia WhatsApp.',
-    'Si le sirve, puedo compartirle un diagnostico breve y privado para conversar sobre mejoras concretas.',
-  ].join(' ');
+  return buildInitialWhatsAppOutreachMessage(prospect);
 }
 
 export function diagnosisToGeneratedJson(diagnosis?: ProspectDiagnosis) {

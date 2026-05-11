@@ -1,4 +1,5 @@
 import type { Prospect } from '../types';
+import { buildInitialWhatsAppScript } from './whatsapp-outreach.utils';
 
 export type OutreachScriptSection = {
   key:
@@ -52,15 +53,7 @@ Si el tema sale, prefiero decirlo así: podría haber oportunidades para que má
     {
       key: 'whatsappInitial',
       title: 'WhatsApp inicial',
-      text: `Hola, ${contactName}. Soy Ed, de El Ojo Negro.
-
-Estuve revisando la presencia digital de ${company} desde fuentes públicas y vi una oportunidad interesante: ya tienen señales buenas, pero la ruta desde Instagram, Google o la web hacia WhatsApp/agendamiento podría ser más clara.
-
-No te escribo para venderte una página genérica.
-
-Estoy preparando diagnósticos express gratuitos para negocios con potencial real. Es una lectura corta con 3 oportunidades concretas, una mejora rápida y un mapa de cómo podrían convertir mejor la atención que ya reciben.
-
-¿Te lo puedo compartir por aquí para que lo revisen sin compromiso?`,
+      text: buildInitialWhatsAppScript(prospect),
     },
     {
       key: 'ifTheyReply',

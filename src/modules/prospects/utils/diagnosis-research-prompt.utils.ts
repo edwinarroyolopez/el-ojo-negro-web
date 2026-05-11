@@ -45,12 +45,16 @@ function buildExpectedOutput(prospect: Prospect) {
 }
 
 function buildProspectContext(prospect: Prospect) {
+  const primaryPhone = prospect.phones[0] || prospect.normalizedPrimaryPhone;
   const cues = [
     prospect.category ? `Categoría: ${prospect.category}` : null,
     prospect.city ? `Ciudad: ${prospect.city}` : null,
     prospect.website ? `Sitio web: ${prospect.website}` : null,
     prospect.instagram ? `Instagram: ${prospect.instagram}` : null,
+    primaryPhone ? `Teléfono o WhatsApp visible: ${primaryPhone}` : null,
     prospect.address ? `Ubicación pública: ${prospect.address}` : null,
+    prospect.sourceUrls.length ? `Fuentes públicas relevantes: ${prospect.sourceUrls.join(' | ')}` : null,
+    prospect.evidenceNotes ? `Notas de evidencia manual: ${prospect.evidenceNotes}` : null,
   ].filter(Boolean);
 
   return cues.length > 0 ? cues.join(' | ') : 'Sin contexto resumido adicional.';
@@ -95,6 +99,7 @@ export function buildDiagnosisResearchPrompt(prospect: Prospect) {
     'Profundidad de lectura requerida:',
     '- no digas solo que existe Instagram, sitio web, WhatsApp o ubicación; explica cómo esa presencia ayuda o no ayuda a que una persona entienda rápido qué se ofrece, por qué confiar y qué paso tomar',
     '- muestra fricción invisible en la mente del prospecto: claridad de oferta, confianza, recordación, diferenciación, CTA, mobile, velocidad para decidir y dispersión entre web, Instagram, Google, directorios, landing y WhatsApp',
+    '- si el prospecto tiene teléfono, WhatsApp, sitio web, Instagram, ubicación o fuentes añadidas manualmente, trátalos como señales relevantes para construir la lectura; no los ignores',
     '- convierte cada observación en tensión comercial elegante',
     '- evita lenguaje absoluto; trabaja desde oportunidad visible y arquitectura de percepción',
     '- adapta el texto al contexto real del negocio, su categoría, ciudad, propuesta pública, canales y señales encontradas',

@@ -41,5 +41,6 @@ describe('slides-prompt.utils', () => {
     expect(prompt).toContain('no inventes métricas');
     expect(prompt).toContain('no afirmar pérdidas comerciales');
     expect(prompt).toContain('fuentes públicas');
+    expect(prompt).toContain('logo visible dentro del website oficial');
   });
 });

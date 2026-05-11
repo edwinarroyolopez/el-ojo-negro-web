@@ -266,6 +266,21 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const deck = getDiagnosisSlideDeck(prospect.diagnosis, prospect.name);
   const seo = getDiagnosisSeo(prospect.diagnosis, prospect.name);
 
+  function buildPersistedDiagnosisPayload() {
+    if (!diagnosisValidation.payload) {
+      throw new Error('Diagnosis JSON is invalid');
+    }
+
+    return {
+      ...prospect.diagnosis,
+      ...diagnosisValidation.payload,
+      structured: {
+        ...(prospect.diagnosis.structured ?? {}),
+        ...(diagnosisValidation.payload.structured ?? {}),
+      },
+    };
+  }
+
   const updateProspectMutation = useMutation({
     mutationFn: (payload: Parameters<typeof prospectsService.updateProspect>[1]) => prospectsService.updateProspect(id, payload),
     onSuccess: async () => {
@@ -291,13 +306,7 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
 
   const saveDiagnosisMutation = useMutation({
     mutationFn: async () => {
-      if (!diagnosisValidation.payload) {
-        throw new Error('Diagnosis JSON is invalid');
-      }
-
-      return prospectsService.updateDiagnosis(id, {
-        ...diagnosisValidation.payload,
-      });
+      return prospectsService.updateDiagnosis(id, buildPersistedDiagnosisPayload());
     },
     onSuccess: async () => {
       await Promise.all([
@@ -310,21 +319,17 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
 
   const publishMutation = useMutation({
     mutationFn: async () => {
-      if (!diagnosisValidation.payload) {
-        throw new Error('Diagnosis JSON is invalid');
-      }
+      const persistedDiagnosis = buildPersistedDiagnosisPayload();
 
       if (deck.status !== 'READY') {
         toast.warning('El diagnóstico se puede publicar, pero el deck visual aún está incompleto.');
       }
 
-      await prospectsService.updateDiagnosis(id, {
-        ...diagnosisValidation.payload,
-      });
+      await prospectsService.updateDiagnosis(id, persistedDiagnosis);
 
       return prospectsService.publishDiagnosis(id, {
-        slug: diagnosisValidation.payload.slug || undefined,
-        visibility: diagnosisValidation.payload.visibility,
+        slug: persistedDiagnosis.slug || undefined,
+        visibility: persistedDiagnosis.visibility,
       });
     },
     onSuccess: async () => {
