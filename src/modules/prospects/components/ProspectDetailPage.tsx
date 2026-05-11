@@ -271,8 +271,10 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
       throw new Error('Diagnosis JSON is invalid');
     }
 
+    const { lastEditedAt: _le, publishedAt: _pa, ...baseDiagnosis } = prospect.diagnosis;
+
     return {
-      ...prospect.diagnosis,
+      ...baseDiagnosis,
       ...diagnosisValidation.payload,
       structured: {
         ...(prospect.diagnosis.structured ?? {}),

@@ -191,7 +191,7 @@ export type UpdateProspectPayload = Partial<
   outreach?: ProspectOutreach;
 };
 
-export type UpdateDiagnosisPayload = Partial<ProspectDiagnosis>;
+export type UpdateDiagnosisPayload = Partial<Omit<ProspectDiagnosis, 'lastEditedAt' | 'publishedAt'>>;
 
 export type GeneratedDiagnosisJson = {
   title: string;
