@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
 import type { DiagnosisSlideAsset } from '../types';
+import { getDisplaySlideTitle } from '../utils/diagnosis-slide-deck.utils';
 
 const Shell = styled.section`
   display: grid;
@@ -547,10 +548,6 @@ function mod(value: number, length: number) {
   return (value + length) % length;
 }
 
-function getEditorialSlideTitle(title: string) {
-  return title.replace(/^slide\s*\d+\s*[-:|]\s*/i, '').trim();
-}
-
 export function PublicDiagnosisGallery({ slides }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [imageFailed, setImageFailed] = useState(false);
@@ -587,7 +584,7 @@ export function PublicDiagnosisGallery({ slides }: Props) {
   }
 
   const activeSlide = slides[Math.min(activeIndex, slides.length - 1)];
-  const editorialTitle = getEditorialSlideTitle(activeSlide.title);
+  const editorialTitle = getDisplaySlideTitle(activeSlide.title, `Slide ${activeIndex + 1}`);
 
   function selectSlide(index: number) {
     setActiveIndex(index);
@@ -669,7 +666,7 @@ export function PublicDiagnosisGallery({ slides }: Props) {
             <MetaRow>
               <div>
                 <Kicker>{`Slide ${activeIndex + 1} de ${slides.length}`}</Kicker>
-                <Title>{activeSlide.title}</Title>
+                <Title>{editorialTitle}</Title>
               </div>
               <Counter>{`${activeIndex + 1}/${slides.length}`}</Counter>
             </MetaRow>
@@ -685,7 +682,7 @@ export function PublicDiagnosisGallery({ slides }: Props) {
               type="button"
               $active={index === activeIndex}
               onClick={() => selectSlide(index)}
-              aria-label={slide.title}
+              aria-label={getDisplaySlideTitle(slide.title, `Slide ${index + 1}`)}
             >
               <ThumbVisual>
                 {slide.thumbnailUrl || slide.imageUrl ? (
@@ -695,7 +692,7 @@ export function PublicDiagnosisGallery({ slides }: Props) {
                 )}
               </ThumbVisual>
               <ThumbMeta>
-                <strong>{slide.title}</strong>
+                <strong>{getDisplaySlideTitle(slide.title, `Slide ${index + 1}`)}</strong>
                 <span>{slide.caption || 'Slide del diagnostico publico.'}</span>
               </ThumbMeta>
             </ThumbButton>

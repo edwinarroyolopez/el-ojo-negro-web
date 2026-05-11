@@ -10,6 +10,7 @@ import type { DiagnosisSlideAsset, DiagnosisSlideDeck, ProspectDiagnosis } from 
 import { uploadsService } from '@/modules/uploads/services/uploads.service';
 import {
   getDiagnosisSlideDeck,
+  getDisplaySlideTitle,
   isValidImageFile,
   normalizeDiagnosisSlideDeck,
 } from '../utils/diagnosis-slide-deck.utils';
@@ -546,7 +547,7 @@ export function DiagnosisDeckModal({
                         ) : null}
                       </SlotVisual>
                       <SlotMeta>
-                        <strong>{slide.title}</strong>
+                        <strong>{getDisplaySlideTitle(slide.title, `Slide ${index + 1}`)}</strong>
                         <span>{slide.caption || 'Sin caption todavia.'}</span>
                         <span>{slide.imageUrl ? (slide.isVisible ? 'Visible en pagina publica' : 'Oculto en pagina publica') : 'Este slide aun no tiene imagen'}</span>
                       </SlotMeta>
@@ -617,7 +618,9 @@ export function DiagnosisDeckModal({
                     )}
                     <StageOverlay>
                       <Kicker>{activeSlide.role}</Kicker>
-                      <div style={{ fontFamily: 'var(--font-serif), serif', fontSize: '1.8rem' }}>{activeSlide.title}</div>
+                      <div style={{ fontFamily: 'var(--font-serif), serif', fontSize: '1.8rem' }}>
+                        {getDisplaySlideTitle(activeSlide.title, `Slide ${activeIndex + 1}`)}
+                      </div>
                     </StageOverlay>
                   </Stage>
 

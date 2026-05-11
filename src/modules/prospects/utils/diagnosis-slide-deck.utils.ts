@@ -20,19 +20,21 @@ const FIXED_SLOTS: Array<{
   {
     role: 'strengths',
     sectionKey: 'strengths',
-    title: 'Slide 2 - Lo que ya esta bien',
+    title: 'Lo que ya esta bien',
   },
   {
     role: 'opportunities',
     sectionKey: 'opportunities',
-    title: 'Slide 3 - Oportunidades principales',
+    title: 'Oportunidades principales',
   },
   {
     role: 'nextStep',
     sectionKey: 'nextStep',
-    title: 'Slide 4 - Siguiente paso recomendado',
+    title: 'Siguiente paso recomendado',
   },
 ];
+
+const SLIDE_TITLE_PREFIX = /^slide\s*\d+\s*[-:|\u2013\u2014]\s*/i;
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -40,6 +42,11 @@ function isObject(value: unknown): value is Record<string, unknown> {
 
 function sanitizeString(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+export function getDisplaySlideTitle(title: string | undefined, fallback?: string) {
+  const sanitizedTitle = sanitizeString(title).replace(SLIDE_TITLE_PREFIX, '').trim();
+  return sanitizedTitle || fallback || '';
 }
 
 function isRole(value: unknown): value is DiagnosisSlideRole {

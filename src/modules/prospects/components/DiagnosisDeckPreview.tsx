@@ -2,7 +2,7 @@
 
 import styled from 'styled-components';
 import type { ProspectDiagnosis } from '../types';
-import { getDiagnosisSlideDeck, getVisibleDiagnosisSlides } from '../utils/diagnosis-slide-deck.utils';
+import { getDiagnosisSlideDeck, getDisplaySlideTitle, getVisibleDiagnosisSlides } from '../utils/diagnosis-slide-deck.utils';
 
 const Shell = styled.section`
   display: grid;
@@ -74,7 +74,7 @@ export function DiagnosisDeckPreview({ diagnosis }: { diagnosis?: ProspectDiagno
               <img src={slide.thumbnailUrl || slide.imageUrl} alt={slide.alt || slide.title} />
             </Visual>
             <Meta>
-              <strong>{slide.title || `Slide ${index + 1}`}</strong>
+              <strong>{getDisplaySlideTitle(slide.title, `Slide ${index + 1}`)}</strong>
               <span>{slide.caption || 'Deck listo para pagina publica.'}</span>
             </Meta>
           </SlideCard>

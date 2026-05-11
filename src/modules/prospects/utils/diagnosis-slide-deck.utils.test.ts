@@ -1,6 +1,7 @@
 import type { ProspectDiagnosis } from '../types';
 import {
   calculateDiagnosisSlideDeckStatus,
+  getDisplaySlideTitle,
   getVisibleDiagnosisSlides,
   mergeDiagnosisSlideDeckIntoStructured,
   normalizeDiagnosisSlideDeck,
@@ -72,5 +73,12 @@ describe('diagnosis-slide-deck.utils', () => {
 
     expect(merged.quickWin).toBe('Mantener CTA');
     expect((merged.slideDeck as { slides: Array<{ title: string }> }).slides[0].title).toBe('Uno');
+  });
+
+  it('removes slide numbering prefixes from display titles', () => {
+    expect(getDisplaySlideTitle('Slide 2 - Lo que ya esta bien')).toBe('Lo que ya esta bien');
+    expect(getDisplaySlideTitle('Slide 3: Oportunidades principales')).toBe('Oportunidades principales');
+    expect(getDisplaySlideTitle('Slide 4 — Siguiente paso recomendado')).toBe('Siguiente paso recomendado');
+    expect(getDisplaySlideTitle('Diagnostico Express - Evo Self')).toBe('Diagnostico Express - Evo Self');
   });
 });
