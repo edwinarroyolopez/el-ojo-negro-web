@@ -486,6 +486,7 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
       outreach: {
         contactAttempts: (prospect.outreach.contactAttempts ?? 0) + 1,
         lastContactedAt: new Date().toISOString(),
+        lastMessage: whatsappMessage,
         whatsappMessage,
       },
     });

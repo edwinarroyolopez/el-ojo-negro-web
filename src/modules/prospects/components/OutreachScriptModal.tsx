@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import styled from 'styled-components';
 import {
   X,
@@ -9,9 +9,10 @@ import {
   CheckCircle2,
   Compass,
   MessageCircle,
-  MessagesSquare,
-  HelpCircle,
+  Link as LinkIcon,
   CornerDownRight,
+  AudioLines,
+  Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card } from '@/components/ui/Card';
@@ -106,35 +107,26 @@ const Anchor = styled.div`
   color: ${({ theme }) => theme.colors.text};
 `;
 
-const TabRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-top: 1rem;
+const GuideCard = styled(Card)`
+  margin-top: 1.1rem;
+  padding: 1rem;
+  display: grid;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
 `;
 
-const TabButton = styled.button<{ $active: boolean }>`
-  appearance: none;
-  border-radius: ${({ theme }) => theme.radius.pill};
-  min-height: 40px;
-  padding: 0.5rem 0.85rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  cursor: pointer;
-  border: 1px solid
-    ${({ $active, theme }) =>
-      $active ? 'rgba(205, 180, 124, 0.35)' : theme.colors.border};
-  background: ${({ $active }) =>
-      $active ? 'rgba(205, 180, 124, 0.08)' : 'rgba(255,255,255,0.03)'};
-  color: ${({ $active, theme }) =>
-      $active ? theme.colors.accent : theme.colors.textMuted};
-  transition: all 180ms ease;
+const GuideTitle = styled.h3`
+  margin: 0;
+  font-family: ${({ theme }) => theme.typography.fontSerif};
+  font-size: 1.2rem;
+`;
 
-  &:hover {
-    color: ${({ theme }) => theme.colors.text};
-    border-color: ${({ theme }) => theme.colors.borderStrong};
-  }
+const GuideList = styled.ul`
+  margin: 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.45rem;
+  color: ${({ theme }) => theme.colors.textMuted};
 `;
 
 const SectionGrid = styled.div`
@@ -162,6 +154,12 @@ const SectionTitle = styled.h3`
   font-size: 1.4rem;
 `;
 
+const SectionLead = styled.p`
+  margin: 0.2rem 0 0;
+  color: ${({ theme }) => theme.colors.textSoft};
+  font-size: ${({ theme }) => theme.typography.size.sm};
+`;
+
 const SectionText = styled.pre`
   margin: 0;
   white-space: pre-wrap;
@@ -181,11 +179,12 @@ type Props = {
 };
 
 const SECTION_ICONS = {
-  call: PhoneCall,
-  whatsappInitial: MessageCircle,
-  ifTheyReply: MessagesSquare,
-  interestQuestions: HelpCircle,
-  followUp: CornerDownRight,
+  firstContact: MessageCircle,
+  shareDiagnosis: LinkIcon,
+  routeResponded: Sparkles,
+  routeNoReply: CornerDownRight,
+  routeSeenNoReply: AudioLines,
+  callClose: PhoneCall,
 } as const;
 
 export function OutreachScriptModal({
@@ -202,9 +201,6 @@ export function OutreachScriptModal({
   const fullScript = prospect
     ? buildOutreachScriptBundle(prospect, publicUrl)
     : '';
-  const [activeKey, setActiveKey] = useState<
-    'call' | 'whatsappInitial' | 'ifTheyReply' | 'interestQuestions' | 'followUp'
-  >('call');
 
   useEffect(() => {
     if (!open) return;
@@ -221,9 +217,6 @@ export function OutreachScriptModal({
 
   if (!prospect) return null;
 
-  const activeSection =
-    sections.find((section) => section.key === activeKey) ?? sections[0];
-
   async function handleCopy(text: string, label: string) {
     await navigator.clipboard.writeText(text);
     toast.success(`${label} copiado`);
@@ -239,7 +232,8 @@ export function OutreachScriptModal({
               <Kicker>Outreach privado</Kicker>
               <Title>Guion de contacto</Title>
               <Lead>
-                Este guion es privado. El objetivo inicial no es vender una web: es conseguir permiso para entregar un diagnóstico útil.
+                Esta guia es privada. La secuencia busca abrir conversacion, compartir el
+                diagnostico y llevar la revision a llamada sin presion.
               </Lead>
             </div>
 
@@ -251,9 +245,10 @@ export function OutreachScriptModal({
           <Actions>
             <Button
               variant="secondary"
-              onClick={() => handleCopy(activeSection.text, activeSection.title)}
+              onClick={() => handleCopy(sections[0]?.text ?? '', sections[0]?.title ?? 'Primer contacto')}
+              disabled={!sections.length}
             >
-              <Copy size={16} /> Copiar sección actual
+              <Copy size={16} /> Copiar primer contacto
             </Button>
             <Button variant="secondary" onClick={() => handleCopy(fullScript, 'Guion completo')}>
               <Copy size={16} /> Copiar todo
@@ -271,38 +266,44 @@ export function OutreachScriptModal({
           </Actions>
 
           <Anchor>
-            El contacto puede iniciar por llamada o por WhatsApp. El objetivo no es vender una web: es conseguir permiso para entregar un diagnóstico útil.
+            El objetivo de esta secuencia no es vender una web. Es mostrar una lectura precisa
+            sobre confianza, percepcion y siguiente paso para que la conversacion avance con menos
+            friccion.
           </Anchor>
 
-          <TabRow>
-            {sections.map((section) => {
-              const Icon = SECTION_ICONS[section.key];
-              return (
-                <TabButton
-                  key={section.key}
-                  type="button"
-                  $active={section.key === activeSection.key}
-                  onClick={() => setActiveKey(section.key)}
-                >
-                  <Icon size={15} /> {section.title}
-                </TabButton>
-              );
-            })}
-          </TabRow>
+          <GuideCard>
+            <GuideTitle>Ruta recomendada despues de contactar</GuideTitle>
+            <GuideList>
+              <li>Si responde &quot;Ok&quot;, no venda todavia: dirija la revision y abra espacio para una llamada breve.</li>
+              <li>Si no responde, no persiga: envie una observacion util.</li>
+              <li>Si vio el diagnostico y no responde, baje la friccion: ofrezca un audio corto o el primer ajuste.</li>
+              <li>La llamada se propone solo cuando ya existe una senal de interes.</li>
+              <li>La meta no es vender una web; la meta es mostrar claridad sobre confianza, percepcion y decision.</li>
+            </GuideList>
+          </GuideCard>
 
           <SectionGrid>
-            <SectionCard key={activeSection.key}>
-              <SectionHeader>
-                <SectionTitle>{activeSection.title}</SectionTitle>
-                <Button
-                  variant="ghost"
-                  onClick={() => handleCopy(activeSection.text, activeSection.title)}
-                >
-                  <Copy size={15} /> Copiar
-                </Button>
-              </SectionHeader>
-              <SectionText>{activeSection.text}</SectionText>
-            </SectionCard>
+            {sections.map((section) => {
+              const Icon = SECTION_ICONS[section.key];
+
+              return (
+                <SectionCard key={section.key}>
+                  <SectionHeader>
+                    <div>
+                      <SectionTitle>
+                        <Icon size={16} style={{ marginRight: '0.45rem', verticalAlign: 'text-bottom' }} />
+                        {section.title}
+                      </SectionTitle>
+                      {section.helpText ? <SectionLead>{section.helpText}</SectionLead> : null}
+                    </div>
+                    <Button variant="ghost" onClick={() => handleCopy(section.text, section.title)}>
+                      <Copy size={15} /> Copiar
+                    </Button>
+                  </SectionHeader>
+                  <SectionText>{section.text}</SectionText>
+                </SectionCard>
+              );
+            })}
           </SectionGrid>
 
           <Actions>

@@ -1,51 +1,104 @@
 import type { Prospect } from '../types';
 
+const DOCTOR_TOKENS = ['dr', 'dr.', 'doctor', 'dra', 'dra.', 'doctora'];
+const BUSINESS_HINTS = [
+  'clinica',
+  'clínica',
+  'centro',
+  'dental',
+  'estetica',
+  'estética',
+  'medicina',
+  'medical',
+  'spa',
+  'studio',
+  'estudio',
+  'ips',
+  'sas',
+  'ltda',
+  'group',
+  'company',
+  'laboratorio',
+  'hospital',
+];
+
+function normalizeToken(value: string) {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function getCleanNameTokens(name: string) {
+  return name
+    .split(/\s+/)
+    .map((token) => token.trim())
+    .filter(Boolean);
+}
+
+function getDoctorPrefix(name: string) {
+  const tokens = getCleanNameTokens(name).map(normalizeToken);
+  if (!tokens.length) return undefined;
+
+  if (tokens.some((token) => token === 'dra' || token === 'dra.' || token === 'doctora')) {
+    return 'Dra.';
+  }
+
+  if (tokens.some((token) => token === 'dr' || token === 'dr.' || token === 'doctor')) {
+    return 'Dr.';
+  }
+
+  return undefined;
+}
+
+function looksLikeBusinessName(name: string) {
+  const normalized = normalizeToken(name);
+  return BUSINESS_HINTS.some((hint) => normalized.includes(hint));
+}
+
 function getContactName(prospect: Prospect) {
-  return prospect.name.split(' ')[0]?.trim() || prospect.name || 'hola';
+  const rawName = prospect.name.trim();
+  const tokens = getCleanNameTokens(rawName);
+  const doctorPrefix = getDoctorPrefix(rawName);
+
+  if (doctorPrefix) {
+    const nonHonorificTokens = tokens.filter(
+      (token) => !DOCTOR_TOKENS.includes(normalizeToken(token)),
+    );
+    const preferredName = nonHonorificTokens.at(-1) || nonHonorificTokens[0] || rawName;
+    return `${doctorPrefix} ${preferredName.replace(/^[,.-]+|[,.-]+$/g, '')}`.trim();
+  }
+
+  if (!looksLikeBusinessName(rawName) && tokens.length >= 2) {
+    return tokens[0];
+  }
+
+  return rawName || 'su marca';
 }
 
-function getContextLabel(prospect: Prospect) {
-  const parts = [prospect.category, prospect.city].filter(Boolean);
-  return parts.length ? `${prospect.name}, ${parts.join(' en ')}` : prospect.name;
-}
+function getContextHint(prospect: Prospect) {
+  if (prospect.city && prospect.category) {
+    return `${prospect.category} en ${prospect.city}`;
+  }
 
-function getDiagnosisLead(prospect: Prospect) {
-  const summary = prospect.diagnosis.summary?.trim();
-  if (!summary) return undefined;
-
-  const firstSentence = summary.split(/(?<=[.!?])\s+/)[0]?.trim();
-  return firstSentence || summary;
+  return prospect.category || prospect.city;
 }
 
 export function buildInitialWhatsAppOutreachMessage(prospect: Prospect) {
   const contactName = getContactName(prospect);
-  const contextLabel = getContextLabel(prospect);
-  const diagnosisLead = getDiagnosisLead(prospect);
+  const contextHint = getContextHint(prospect);
+  const secondParagraph = contextHint
+    ? `Estuve revisando su presencia digital en ${contextHint} y vi una oportunidad concreta: la marca ya genera señales de confianza, pero la ruta hacia WhatsApp o agendamiento podria sentirse mas clara para una persona que todavia esta decidiendo.`
+    : 'Estuve revisando su presencia digital y vi una oportunidad concreta: la marca ya genera senales de confianza, pero la ruta hacia WhatsApp o agendamiento podria sentirse mas clara para una persona que todavia esta decidiendo.';
 
   return [
     `Hola, ${contactName}. Soy Ed, de El Ojo Negro.`,
-    `Estuve revisando ${contextLabel} y me llamó la atención que ya hay una base valiosa sobre la cual construir algo más claro comercialmente.`,
-    diagnosisLead
-      ? `De hecho, la lectura central del diagnóstico va por aquí: ${diagnosisLead}`
-      : 'La oportunidad visible no parece estar en tener más presencia, sino en hacer más fácil que una persona entienda rápido qué ofrece la marca, por qué confiar y cuál es el siguiente paso.',
-    'Preparé un diagnóstico breve, gratuito y puntual sobre eso. Si te hace sentido, te lo comparto por aquí.',
-  ].join(' ');
+    secondParagraph,
+    'Prepare una lectura breve, visual y sin compromiso sobre eso.',
+    'Se la puedo compartir por aqui?',
+  ].join('\n\n');
 }
 
 export function buildInitialWhatsAppScript(prospect: Prospect) {
-  const contactName = getContactName(prospect);
-  const contextLabel = getContextLabel(prospect);
-  const diagnosisLead = getDiagnosisLead(prospect);
-
-  return `Hola, ${contactName}. Soy Ed, de El Ojo Negro.
-
-Estuve revisando ${contextLabel} desde fuentes públicas y vi algo interesante: la marca ya transmite base y señales reales, pero todavía podría ganar mucha claridad en la forma en que una persona entiende qué puede resolver, por qué confiar y cómo escribir.
-
-${diagnosisLead ? `La lectura central del diagnóstico es esta: ${diagnosisLead}
-
-` : ''}No te escribo para venderte una página genérica.
-
-Preparé un diagnóstico breve, gratuito y sin compromiso sobre esa ruta de decisión. La idea es que al verlo puedas detectar oportunidades concretas para ordenar mejor confianza, servicios y contacto.
-
-Si te interesa, te lo comparto por aquí.`;
+  return buildInitialWhatsAppOutreachMessage(prospect);
 }
