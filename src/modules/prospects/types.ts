@@ -85,6 +85,87 @@ export type ProspectOutreach = {
   whatsappMessage?: string;
 };
 
+export type InstagramMetricClassification =
+  | 'observed'
+  | 'estimated'
+  | 'benchmark'
+  | 'unavailable';
+
+export type InstagramResearchConfidence = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export type InstagramResearchMetric = {
+  key: string;
+  label: string;
+  shortLabel?: string | null;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  value: string | number | null;
+  unit?: string | null;
+  valueType?: string | null;
+  classification: InstagramMetricClassification;
+  sourceNote?: string | null;
+  confidence?: InstagramResearchConfidence | null;
+  context?: string | null;
+  observationDate?: string | null;
+  freshness?: 'fresh' | 'recent' | 'stale' | 'unknown' | null;
+};
+
+export type InstagramResearchData = {
+  channel?: 'instagram' | string;
+  channelRole?: string;
+  promptMode?: string;
+  doNotInvent?: boolean;
+  observationDate?: string | null;
+  sourceConfidence?: InstagramResearchConfidence | null;
+  observedSignals?: {
+    followersCountObserved?: number | string | null;
+    followingCountObserved?: number | string | null;
+    postsCountObserved?: number | string | null;
+    lastPostAtObserved?: string | null;
+    highlightsCountObserved?: number | string | null;
+    reelsPresenceObserved?: boolean | null;
+    recentPostingCadenceObserved?: string | null;
+    profileBioHasClearOfferObserved?: boolean | null;
+    profileHasWhatsAppOrDirectCTAObserved?: boolean | null;
+    linkInBioPresenceObserved?: boolean | null;
+    visibleEngagementSignalObserved?: string | number | null;
+  };
+  scorecard?: Record<string, number | null | undefined>;
+  topStrengths?: string[];
+  topFrictions?: string[];
+  commercialImplications?: string[];
+  recommendedNextQuestion?: string;
+  diagnosticRelevance?: string;
+  profile?: {
+    handle?: string | null;
+    displayName?: string | null;
+    bioSummary?: string | null;
+    linkInBio?: string | null;
+  };
+  metrics?: {
+    followers?: string | number | null;
+    following?: string | number | null;
+    postsVisible?: string | number | null;
+    postingCadence30d?: string | null;
+    engagementRead?: string | null;
+  };
+  observedMetrics?: InstagramResearchMetric[];
+  estimatedMetrics?: InstagramResearchMetric[];
+  benchmarks?: InstagramResearchMetric[];
+  contentPatterns?: string | Record<string, unknown>;
+  engagementSignals?: string | Record<string, unknown>;
+  brandMaturity?: string | Record<string, unknown>;
+  audienceSignals?: string | Record<string, unknown>;
+  methodologicalLimits?: string[];
+  missingData?: string[];
+  opportunities?: string[];
+  risks?: string[];
+  presenceScore?: number | null;
+  consistencyScore?: number | null;
+  interactionHealthScore?: number | null;
+  proposalReadinessScore?: number | null;
+  executiveSummary?: string;
+};
+
 export type Prospect = {
   id: string;
   accountId: string;
@@ -108,6 +189,7 @@ export type Prospect = {
   providerIntelligence?: Record<string, unknown>;
   importProjection?: Record<string, unknown>;
   signals?: Record<string, unknown>;
+  data_instagram?: InstagramResearchData | Record<string, unknown> | null;
   scores: ProspectScores;
   priority: ProspectPriority;
   status: ProspectStatus;
@@ -186,6 +268,7 @@ export type UpdateProspectPayload = Partial<
     | 'evidenceNotes'
     | 'internalNotes'
     | 'signals'
+    | 'data_instagram'
   >
 > & {
   outreach?: ProspectOutreach;

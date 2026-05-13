@@ -12,6 +12,10 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { Prospect } from '../types';
 import { buildWhatsAppMessage } from '../utils';
+import {
+  getInstagramFollowersValue,
+  getInstagramPostsValue,
+} from '../utils/instagram-research.utils';
 import { ProspectPriorityBadge, ProspectStatusBadge } from './ProspectStatusBadge';
 
 const Wrapper = styled(Card)`
@@ -120,6 +124,25 @@ const Footer = styled.div`
   align-items: center;
 `;
 
+const InsightRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+`;
+
+const InsightPill = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 34px;
+  padding: 0.4rem 0.75rem;
+  border-radius: ${({ theme }) => theme.radius.pill};
+  border: 1px solid rgba(205, 180, 124, 0.24);
+  background: rgba(205, 180, 124, 0.08);
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: ${({ theme }) => theme.typography.size.sm};
+`;
+
 const ScoreMeta = styled.div`
   display: flex;
   gap: 1rem;
@@ -153,6 +176,8 @@ export function ProspectCard({ prospect, onOpenScript }: Props) {
   const whatsappUrl = whatsappPhoneDigits
     ? `https://wa.me/${whatsappPhoneDigits}?text=${whatsappMessage}`
     : null;
+  const instagramFollowers = getInstagramFollowersValue(prospect.data_instagram);
+  const instagramPosts = getInstagramPostsValue(prospect.data_instagram);
 
   function handleOpenScript(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
@@ -208,6 +233,13 @@ export function ProspectCard({ prospect, onOpenScript }: Props) {
             </ExternalLink>
           ) : null}
         </ContactLine>
+      ) : null}
+
+      {instagramFollowers || instagramPosts ? (
+        <InsightRow>
+          {instagramFollowers ? <InsightPill>IG: {instagramFollowers} seguidores</InsightPill> : null}
+          {instagramPosts ? <InsightPill>{instagramPosts} posts</InsightPill> : null}
+        </InsightRow>
       ) : null}
 
       <Footer>

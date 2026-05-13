@@ -32,11 +32,17 @@ import { DiagnosisSeoSummaryCard } from './DiagnosisSeoSummaryCard';
 import { DiagnosisEditor } from './DiagnosisEditor';
 import { DiagnosisPreview } from './DiagnosisPreview';
 import { CommercialNorthModal } from './CommercialNorthModal';
+import { InstagramResearchModal } from './InstagramResearchModal';
 import { OutreachScriptModal } from './OutreachScriptModal';
 import { ProspectManualEditModal } from './ProspectManualEditModal';
 import { ProspectPriorityBadge, ProspectStatusBadge } from './ProspectStatusBadge';
 import { getDiagnosisSlideDeck, mergeDiagnosisSlideDeckIntoStructured } from '../utils/diagnosis-slide-deck.utils';
 import { getDiagnosisSeo, mergeDiagnosisSeoIntoStructured } from '../utils/diagnosis-seo.utils';
+import {
+  getInstagramFollowersValue,
+  getInstagramPostsValue,
+} from '../utils/instagram-research.utils';
+import type { InstagramResearchData } from '../types';
 
 const Page = styled.div`
   display: grid;
@@ -176,6 +182,25 @@ const Notes = styled.textarea`
   padding: 0.95rem;
 `;
 
+const InsightRow = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+`;
+
+const InsightChip = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 34px;
+  padding: 0.4rem 0.75rem;
+  border-radius: ${({ theme }) => theme.radius.pill};
+  border: 1px solid rgba(205, 180, 124, 0.24);
+  background: rgba(205, 180, 124, 0.08);
+  color: ${({ theme }) => theme.colors.text};
+`;
+
 const ScoreGrid = styled.div`
   display: grid;
   gap: 0.75rem;
@@ -259,12 +284,15 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
   const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
   const [isSeoModalOpen, setIsSeoModalOpen] = useState(false);
   const [isManualEditOpen, setIsManualEditOpen] = useState(false);
+  const [isInstagramModalOpen, setIsInstagramModalOpen] = useState(false);
   const [diagnosisJson, setDiagnosisJson] = useState(() =>
     diagnosisToGeneratedJson(prospect.diagnosis),
   );
   const diagnosisValidation = validateGeneratedDiagnosisJson(diagnosisJson);
   const deck = getDiagnosisSlideDeck(prospect.diagnosis, prospect.name);
   const seo = getDiagnosisSeo(prospect.diagnosis, prospect.name);
+  const instagramFollowers = getInstagramFollowersValue(prospect.data_instagram);
+  const instagramPosts = getInstagramPostsValue(prospect.data_instagram);
 
   function buildPersistedDiagnosisPayload() {
     if (!diagnosisValidation.payload) {
@@ -478,6 +506,12 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
     setIsManualEditOpen(false);
   }
 
+  async function saveInstagramResearch(payload: InstagramResearchData) {
+    await updateProspectMutation.mutateAsync({ data_instagram: payload });
+    toast.success('Lectura de Instagram guardada');
+    setIsInstagramModalOpen(false);
+  }
+
   return (
     <Page>
       <Hero>
@@ -496,6 +530,9 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
           </Button>
           <Button variant="secondary" onClick={() => setIsScriptModalOpen(true)}>
             <PhoneCall size={16} /> Ver guion de contacto
+          </Button>
+          <Button variant="secondary" onClick={() => setIsInstagramModalOpen(true)}>
+            <Instagram size={16} /> Instagram
           </Button>
           <Button variant="secondary" onClick={copyWhatsApp}>Copiar mensaje de WhatsApp</Button>
           <Button
@@ -562,6 +599,19 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
                     </ExternalValue>
                   ) : (
                     'Sin Instagram'
+                  )}
+                </strong>
+              </Row>
+              <Row>
+                <span>Instagram intelligence</span>
+                <strong>
+                  {instagramFollowers || instagramPosts ? (
+                    <InsightRow>
+                      {instagramFollowers ? <InsightChip>{instagramFollowers} seguidores</InsightChip> : null}
+                      {instagramPosts ? <InsightChip>{instagramPosts} posts</InsightChip> : null}
+                    </InsightRow>
+                  ) : (
+                    <InsightChip>IG sin lectura</InsightChip>
                   )}
                 </strong>
               </Row>
@@ -713,6 +763,14 @@ function ProspectDetailContent({ prospect }: { prospect: Prospect }) {
         prospect={prospect}
         open={isCommercialNorthOpen}
         onClose={() => setIsCommercialNorthOpen(false)}
+      />
+
+      <InstagramResearchModal
+        prospect={prospect}
+        isOpen={isInstagramModalOpen}
+        onClose={() => setIsInstagramModalOpen(false)}
+        onSave={saveInstagramResearch}
+        isSaving={updateProspectMutation.isPending}
       />
 
       {isDeckModalOpen ? (
