@@ -6,7 +6,7 @@ const API_URL = 'https://eon-backend-production.up.railway.app/api';
 
 export const http = axios.create({
   baseURL: API_URL,
-  timeout: 12_000,
+  timeout: 30_000,
 });
 
 http.interceptors.request.use((config) => {
