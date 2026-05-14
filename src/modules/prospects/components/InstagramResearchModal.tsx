@@ -394,9 +394,10 @@ export function InstagramResearchModal({
     if (!prospect.data_instagram) return '';
 
     return [
-      'Refiná esta lectura de Instagram sin inventar datos ni completar huecos con supuestos.',
-      'Mejorá precisión, separación entre observed / estimated / benchmark y claridad ejecutiva para Growth Partner.',
-      'Respondé SOLO con un único JSON válido manteniendo el mismo esquema y `doNotInvent=true`.',
+      'Refina esta lectura de Instagram sin inventar datos ni completar huecos con supuestos.',
+      'Mejora precision, separacion entre observed / estimated / benchmark y claridad ejecutiva para Growth Partner.',
+      'Responde SOLO con un unico JSON valido dentro de un bloque ```json```, manteniendo el mismo esquema y `doNotInvent=true`.',
+      'No agregues referencias, explicaciones, comentarios ni texto fuera del bloque.',
       '',
       'JSON actual:',
       JSON.stringify(prospect.data_instagram, null, 2),

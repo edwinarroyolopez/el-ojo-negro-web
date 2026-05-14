@@ -42,6 +42,8 @@ describe('instagram-research.utils', () => {
     expect(prompt).toContain('Ubicación: Bogota, Colombia');
     expect(prompt).toContain('Sitio web: https://clinicaliv.com');
     expect(prompt).toContain('Instagram: @clinicaliv');
+    expect(prompt).toContain('bloque de codigo ```json```');
+    expect(prompt).toContain('Sin referencias, citas ni notas al pie fuera del JSON.');
   });
 
   it('accepts a valid instagram research object', () => {
@@ -57,6 +59,18 @@ describe('instagram-research.utils', () => {
 
     expect(result.isValid).toBe(true);
     expect(result.payload?.channel).toBe('instagram');
+  });
+
+  it('accepts valid instagram research wrapped in a json code block', () => {
+    const fencedJson = [
+      '```json',
+      '{"channel":"instagram","doNotInvent":true,"observedSignals":{"followersCountObserved":55000}}',
+      '```',
+    ].join('\n');
+    const result = parseInstagramResearchJson(fencedJson);
+
+    expect(result.isValid).toBe(true);
+    expect(result.payload?.doNotInvent).toBe(true);
   });
 
   it('rejects invalid json', () => {

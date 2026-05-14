@@ -3,6 +3,7 @@ import type {
   InstagramResearchMetric,
   Prospect,
 } from '../types';
+import { normalizeJsonLikeText } from '../utils';
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -65,7 +66,7 @@ export function buildInstagramResearchPrompt(prospect: Prospect): string {
   });
 
   return [
-    'Sos auditor externo senior de Growth Partner. Ejecutá deepsearch sobre Instagram y entorno de referencia. Devolvé SOLO JSON.',
+    'Sos auditor externo senior de Growth Partner. Ejecuta deepsearch sobre Instagram y entorno de referencia. Devolve SOLO JSON.',
     '',
     `Marca / empresa: ${prospect.name}`,
     `Contacto o nombre de referencia: ${prospect.name}`,
@@ -94,11 +95,12 @@ export function buildInstagramResearchPrompt(prospect: Prospect): string {
     '- Si Instagram no permite ver datos por restricciones de plataforma, decláralo en methodologicalLimits.',
     '',
     'REGLAS DE SALIDA OBLIGATORIAS:',
-    '- Respondé con un ÚNICO objeto JSON válido UTF-8.',
-    '- Sin markdown.',
+    '- Responde con un UNICO objeto JSON valido UTF-8 dentro de un solo bloque de codigo ```json```.',
+    '- Sin markdown adicional fuera del bloque.',
     '- Sin comentarios.',
     '- Sin texto antes ni después.',
     '- Sin trailing commas.',
+    '- Sin referencias, citas ni notas al pie fuera del JSON.',
     '- Claves en camelCase como en el esquema.',
     '- Todo cuantitativo debe respetar clasificación: observed | estimated | benchmark | unavailable.',
     '- Diferenciá explícitamente observado vs inferido; lo no confirmable va en missingData.',
@@ -120,6 +122,11 @@ export function buildInstagramResearchPrompt(prospect: Prospect): string {
     '- No mezclar benchmark externo con performance propia.',
     '- No usar precisión decimal artificial cuando la fuente no la soporta.',
     '- Si inferís, usar classification=estimated y explicar sourceNote/context.',
+    '',
+    'FORMATO OBLIGATORIO DE ENTREGA:',
+    '```json',
+    '{ ...json limpio... }',
+    '```',
     '',
     'ESQUEMA JSON esperado, todas las claves deben existir:',
     `{
@@ -247,7 +254,7 @@ export function parseInstagramResearchJson(raw: string): {
   }
 
   try {
-    const parsed = JSON.parse(raw) as unknown;
+    const parsed = JSON.parse(normalizeJsonLikeText(raw)) as unknown;
 
     if (!isObject(parsed)) {
       return {

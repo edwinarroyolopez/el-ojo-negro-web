@@ -23,11 +23,24 @@ function toNumber(value: unknown) {
 }
 
 export function safeParseJson<T = unknown>(value: string): T | null {
+  const normalizedValue = normalizeJsonLikeText(value);
+
   try {
-    return JSON.parse(value) as T;
+    return JSON.parse(normalizedValue) as T;
   } catch {
     return null;
   }
+}
+
+export function normalizeJsonLikeText(value: string) {
+  const trimmed = value.trim();
+  const fencedMatch = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+
+  if (fencedMatch?.[1]) {
+    return fencedMatch[1].trim();
+  }
+
+  return trimmed;
 }
 
 export function parseImportPayload(value: string) {

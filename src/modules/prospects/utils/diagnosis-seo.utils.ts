@@ -1,4 +1,5 @@
 import type { Prospect, ProspectDiagnosis } from '../types';
+import { normalizeJsonLikeText } from '../utils';
 import {
   serializeDiagnosisForPrompt,
   serializeProspectForPrompt,
@@ -34,7 +35,7 @@ function sanitizeString(value: unknown) {
 
 function safeParseJson<T>(value: string) {
   try {
-    return JSON.parse(value) as T;
+    return JSON.parse(normalizeJsonLikeText(value)) as T;
   } catch {
     return null;
   }
@@ -176,9 +177,10 @@ export function buildSeoMetadataPrompt(prospect: Prospect, diagnosis?: ProspectD
     'Piensa en confianza, claridad comercial, diagnostico express y percepcion editorial.',
     '',
     'Instruccion obligatoria de salida:',
-    '- responde unicamente con JSON valido en una sola linea',
-    '- no agregues markdown, comentarios ni explicaciones',
-    '- usa exactamente este formato: {"title":"...","description":"..."}',
+    '- responde unicamente con JSON valido dentro de un unico bloque de codigo ```json```',
+    '- no agregues markdown adicional, comentarios, referencias ni explicaciones',
+    '- usa exactamente este formato dentro del bloque: {"title":"...","description":"..."}',
+    '- no escribas texto antes ni despues del bloque',
     '',
     'Datos del prospecto:',
     JSON.stringify(

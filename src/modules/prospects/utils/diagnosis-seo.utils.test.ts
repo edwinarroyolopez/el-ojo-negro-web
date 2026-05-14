@@ -1,11 +1,40 @@
 import type { DiagnosisSeoMetadata } from './diagnosis-seo.utils';
 import {
+  buildSeoMetadataPrompt,
   calculateDiagnosisSeoStatus,
   mergeDiagnosisSeoIntoStructured,
   validateSeoMetadataJson,
 } from './diagnosis-seo.utils';
+import type { Prospect } from '../types';
+
+function buildProspect(overrides: Partial<Prospect> = {}): Prospect {
+  return {
+    id: 'prospect-1',
+    accountId: 'account-1',
+    name: 'Clinica LIV',
+    category: 'Clinica estetica',
+    city: 'Bogota',
+    phones: ['573001234567'],
+    sourceUrls: ['https://clinicaliv.com'],
+    website: 'https://clinicaliv.com',
+    instagram: '@clinicaliv',
+    scores: {},
+    priority: 'HIGH',
+    status: 'DIAGNOSIS_READY',
+    diagnosis: {},
+    outreach: {},
+    ...overrides,
+  };
+}
 
 describe('diagnosis-seo.utils', () => {
+  it('requests json output inside a code block for SEO metadata', () => {
+    const prompt = buildSeoMetadataPrompt(buildProspect());
+
+    expect(prompt).toContain('bloque de codigo ```json```');
+    expect(prompt).toContain('no agregues markdown adicional, comentarios, referencias ni explicaciones');
+  });
+
   it('validates the expected JSON shape', () => {
     const result = validateSeoMetadataJson(
       '{"title":"Diagnostico Express para Clinica LIV con una lectura clara de confianza digital","description":"Una lectura ejecutiva, sobria y comercialmente clara sobre la presencia digital de Clinica LIV, su confianza percibida y su ruta de conversion hacia WhatsApp."}',
@@ -18,6 +47,18 @@ describe('diagnosis-seo.utils', () => {
       description:
         'Una lectura ejecutiva, sobria y comercialmente clara sobre la presencia digital de Clinica LIV, su confianza percibida y su ruta de conversion hacia WhatsApp.',
     });
+  });
+
+  it('accepts seo JSON wrapped in a json code block', () => {
+    const fencedJson = [
+      '```json',
+      '{"title":"Diagnostico Express para Clinica LIV con una lectura clara de confianza digital","description":"Una lectura ejecutiva, sobria y comercialmente clara sobre la presencia digital de Clinica LIV, su confianza percibida y su ruta de conversion hacia WhatsApp."}',
+      '```',
+    ].join('\n');
+    const result = validateSeoMetadataJson(fencedJson);
+
+    expect(result.isValid).toBe(true);
+    expect(result.payload?.title).toContain('Clinica LIV');
   });
 
   it('rejects invalid seo JSON formats', () => {

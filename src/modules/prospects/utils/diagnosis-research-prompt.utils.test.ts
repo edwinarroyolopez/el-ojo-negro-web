@@ -32,5 +32,7 @@ describe('diagnosis-research-prompt.utils', () => {
     expect(prompt).toContain('no afirmar pérdidas comerciales');
     expect(prompt).toContain('fuentes públicas');
     expect(prompt).toContain('Teléfono o WhatsApp visible');
+    expect(prompt).toContain('```json```');
+    expect(prompt).toContain('sin texto antes ni despues del bloque');
   });
 });
